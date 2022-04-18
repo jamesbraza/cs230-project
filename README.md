@@ -4,6 +4,8 @@
 
 ## Developers
 
+This project was developed using Python 3.10.
+
 ### Getting Started With `pre-commit`
 
 ```bash
