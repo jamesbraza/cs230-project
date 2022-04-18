@@ -1,0 +1,76 @@
+[tool.isort]
+# SEE: https://pycqa.github.io/isort/docs/configuration/options/
+
+# profiles allow easy interoperability with common projects and code styles
+profile = "black"
+
+
+[tool.pylint]
+# SEE: https://github.com/PyCQA/pylint/blob/master/examples/pylintrc
+
+[tool.pylint.master]
+
+# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+# number of processors available to use.
+jobs = 0
+
+[tool.pylint.messages_control]
+
+# Disable the message, report, category or checker with the given id(s).
+disable = [
+    "missing-docstring",  # Let pep257 take care of docstrings
+    "empty-docstring",  # Let pep257 take care of docstrings
+    "too-few-public-methods",  # Don't care for this level of linting
+    "fixme",  # codetags are useful
+    "too-many-arguments",  # Don't care to enforce this
+    "wrong-import-order",  # Rely on isort for this
+    "ungrouped-imports",  # Rely on isort for this
+    "unused-wildcard-import",  # Wildcard imports are convenient
+    "wildcard-import",  # Wildcard imports are convenient
+    "unsubscriptable-object",  # Buggy, SEE: https://github.com/PyCQA/pylint/issues/3637
+    "no-self-use",  # Don't care to enforce this
+]
+
+# Enable the message, report, category or checker with the given id(s).
+enable = [
+    "useless-suppression",  # Print unused `pylint: disable` comments
+]
+
+[tool.pylint.format]
+
+# Maximum number of characters on a single line.
+max-line-length = 120
+
+
+[tool.mypy]
+# SEE: http://mypy.readthedocs.io/en/latest/config_file.html#config-file
+
+# Specifies the Python version used to parse and check the target program.
+python_version = "3.10"
+
+# Warns about casting an expression to its inferred type.
+warn_redundant_casts = true
+
+# Warns about unneeded `# type: ignore` comments.
+warn_unused_ignores = true
+
+# Shows a warning when encountering any code inferred to be unreachable or
+# redundant after performing type analysis.
+warn_unreachable = true
+
+# Warns about per-module sections in the config file that do not match any
+# files processed when invoking mypy.
+warn_unused_configs = true
+
+# Prefixes each error with the relevant context.
+show_error_context = true
+
+# Shows error codes in error messages.
+# SEE: https://mypy.readthedocs.io/en/stable/error_codes.html#error-codes
+show_error_codes = true
+
+# Shows column numbers in error messages.
+show_column_numbers = true
+
+# Enables PEP 420 style namespace packages.
+namespace_packages = true
