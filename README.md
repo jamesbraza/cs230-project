@@ -12,6 +12,6 @@ This project was developed using Python 3.10.
 python -m venv venv
 source venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements-qa.txt
+python -m pip install -r requirements.txt -r requirements-qa.txt
 pre-commit install
 ```
