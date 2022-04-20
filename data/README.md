@@ -13,3 +13,23 @@ kaggle datasets download  -p clothing_dataset_small --unzip abdelrahmansoltan98/
 ```
 
 [1]: https://www.kaggle.com/datasets/abdelrahmansoltan98/clothing-dataset-small
+
+## [Clothing dataset (full, high resolution)][2]
+
+We utilized version 1 of the dataset, which held images, and pre-compressed images.
+
+```bash
+kaggle datasets download  -p clothing_dataset_full --unzip agrigorev/clothing-dataset-full
+```
+
+[2]: https://www.kaggle.com/datasets/agrigorev/clothing-dataset-full
+
+## [Clothing Dataset][3]
+
+We utilized version 2 of the dataset, which held images alone.
+
+```bash
+kaggle datasets download  -p clothing_dataset --unzip gabrielalbertin/clothing-dataset
+```
+
+[3]: https://www.kaggle.com/datasets/gabrielalbertin/clothing-dataset

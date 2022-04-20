@@ -1,2 +1,4 @@
 # Folder names to which we will download datasets
 clothing_dataset_small
+clothing_dataset
+clothing_dataset_full
