@@ -4,32 +4,32 @@ Here is information on various datasets we used.  They are all available on [Kag
 
 Downloading the datasets can be made easy using the [`kaggle-api`](https://github.com/Kaggle/kaggle-api).
 
-## [clothing dataset small][1]
+## Small Clothing Dataset
 
-We utilized version 2 of the dataset, which holds a test, train, and validation set.
+We utilized version 2 of [clothing dataset small][1], which holds a test, train, and validation set.
 
 ```bash
-kaggle datasets download  -p clothing_dataset_small --unzip abdelrahmansoltan98/clothing-dataset-small
+kaggle datasets download -p clothing_dataset_small --unzip abdelrahmansoltan98/clothing-dataset-small
 ```
 
 [1]: https://www.kaggle.com/datasets/abdelrahmansoltan98/clothing-dataset-small
 
-## [Clothing dataset (full, high resolution)][2]
+## Full Clothing Dataset
 
-We utilized version 1 of the dataset, which held images, and pre-compressed images.
+We utilized version 1 of [Clothing dataset (full, high resolution)][2], which holds images, and pre-compressed images.  The pre-compressed images have their aspect ratio preserved with a 400-px width.
 
 ```bash
-kaggle datasets download  -p clothing_dataset_full --unzip agrigorev/clothing-dataset-full
+kaggle datasets download -p clothing_dataset_full --unzip agrigorev/clothing-dataset-full
 ```
 
 [2]: https://www.kaggle.com/datasets/agrigorev/clothing-dataset-full
 
-## [Clothing Dataset][3]
+## Shirts Dataset
 
-We utilized version 2 of the dataset, which held images alone.
+We utilized version 2 of the [Clothing Dataset][3], which holds 2779 images of men's shirts.
 
 ```bash
-kaggle datasets download  -p clothing_dataset --unzip gabrielalbertin/clothing-dataset
+kaggle datasets download -p shirts_dataset --unzip gabrielalbertin/clothing-dataset
 ```
 
 [3]: https://www.kaggle.com/datasets/gabrielalbertin/clothing-dataset
