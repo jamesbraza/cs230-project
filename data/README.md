@@ -26,7 +26,7 @@ kaggle datasets download -p clothing_dataset_full --unzip agrigorev/clothing-dat
 
 ## Shirts Dataset
 
-We utilized version 2 of the [Clothing Dataset][3], which holds 2779 images of men's shirts.
+We utilized version 2 of the [Clothing Dataset][3], which holds 2779 images of various men's shirts.
 
 ```bash
 kaggle datasets download -p shirts_dataset --unzip gabrielalbertin/clothing-dataset
