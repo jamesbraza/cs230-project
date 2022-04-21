@@ -27,6 +27,11 @@ kaggle datasets download -p clothing_dataset_full --unzip agrigorev/clothing-dat
 ## Shirts Dataset
 
 We utilized version 2 of the [Clothing Dataset][3], which holds 2779 images of various men's shirts.
+The labels can be found from a `data.csv` inside, or alternately from the sub-folder names themselves.
+The image dimensions are not standardized:
+- Some shirts were 1200 x 1200
+- Some polos were 72 x 72
+- Some jackets were 931 x 1200.
 
 ```bash
 kaggle datasets download -p shirts_dataset --unzip gabrielalbertin/clothing-dataset
