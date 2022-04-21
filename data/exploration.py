@@ -2,9 +2,10 @@ import os.path
 
 import pandas as pd
 
-DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
-FULL_CSV_REL_PATH = os.path.join("clothing_dataset_full", "images.csv")
-SHIRTS_CSV_REL_PATH = os.path.join("shirts_dataset", "Dataset", "data.csv")
+from data.make import FULL_REL_PATH, SHIRTS_REL_PATH
+
+FULL_CSV_REL_PATH = os.path.join(FULL_REL_PATH, "images.csv")
+SHIRTS_CSV_REL_PATH = os.path.join(SHIRTS_REL_PATH, "data.csv")
 
 
 def explore_full_dataset() -> None:
