@@ -7,7 +7,7 @@ Downloading the datasets can be made easy using the [`kaggle-api`](https://githu
 ## Small Clothing Dataset
 
 We utilized version 2 of [clothing dataset small][1], which holds a
-train, validation, and test set.
+train, validation, and test set.  There are 10 different classes available.
 
 ```bash
 kaggle datasets download -p clothing_dataset_small --unzip abdelrahmansoltan98/clothing-dataset-small
