@@ -1,2 +1,4 @@
 kaggle
+matplotlib
+numpy
 pandas
