@@ -37,7 +37,7 @@ def explore_shirts_dataset_raw() -> None:
     counts_designs = data["Design"].value_counts(sort=True)
 
 
-def explore_small_dataset():
+def explore_small_dataset() -> None:
     train_ds, dev_ds, test_ds = get_dataset("small")
     train_batches: tf.data.Dataset = train_ds.take(1)
 
@@ -53,6 +53,7 @@ def explore_small_dataset():
 
 
 if __name__ == "__main__":
+    explore_small_dataset()
     explore_small_dataset_raw()
     explore_full_dataset_raw()
     explore_shirts_dataset_raw()
