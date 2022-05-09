@@ -24,7 +24,7 @@ model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accur
 # 3. Fit the training data
 ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
-    "%s{epoch:02d}-{loss:.2f}.hdf5" % datetime.now().isoformat().replace(":", "-"),
+    "%s--{epoch:02d}--{loss:.2f}.hdf5" % datetime.now().isoformat().replace(":", "-"),
 )
 callbacks: list[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
