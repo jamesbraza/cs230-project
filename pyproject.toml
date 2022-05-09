@@ -74,3 +74,14 @@ show_column_numbers = true
 
 # Enables PEP 420 style namespace packages.
 namespace_packages = true
+
+[[tool.mypy.overrides]]
+
+module = [
+    "matplotlib.*",
+    "pandas",
+    "tensorflow",
+]
+
+# Suppresses error messages about imports that cannot be resolved.
+ignore_missing_imports = true

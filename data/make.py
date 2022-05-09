@@ -35,7 +35,7 @@ def get_dataset(
     """
     if name == "small":
         paths = [SMALL_TRAIN_ABS_PATH, SMALL_DEV_ABS_PATH, SMALL_TEST_ABS_PATH]
-        return tuple(
+        return tuple(  # type: ignore[return-value]
             tf.keras.preprocessing.image_dataset_from_directory(path, **kwargs)
             for path in paths
         )
@@ -43,7 +43,7 @@ def get_dataset(
         directory = FULL_ABS_PATH
     else:
         directory = SHIRTS_ABS_PATH
-    kwargs: dict[str, Any] = {"validation_split": 0.2} | kwargs
+    kwargs = {"validation_split": 0.2} | kwargs
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **({"subset": "training"} | kwargs)
     )
