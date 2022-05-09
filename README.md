@@ -15,3 +15,13 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt -r requirements-qa.txt
 pre-commit install
 ```
+
+### Debugging with `tensorboard`
+
+Here is how you kick off `tensorboard`:
+
+```bash
+tensorboard --logdir training
+```
+
+Afterwards, go to its URL: [http://localhost:6006/](http://localhost:6006/).
