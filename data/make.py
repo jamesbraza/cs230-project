@@ -1,6 +1,9 @@
 import os.path
-from typing import Any, Literal, TypeAlias
+from collections.abc import Iterator
+from typing import Literal, TypeAlias
 
+import numpy as np
+import numpy.typing as npt
 import tensorflow as tf
 
 DATA_DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -51,3 +54,14 @@ def get_dataset(
         directory, **({"subset": "validation"} | kwargs)
     )
     return train_ds, dev_ds, None
+
+
+def make_vgg_preprocessing_generator(
+    dataset: tf.data.Dataset,
+) -> Iterator[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
+    """Make an iterator that pre-processes a dataset for VGGNet training."""
+    num_classes = len(dataset.class_names)
+    for batch_images, batch_labels in dataset:
+        yield tf.keras.applications.vgg16.preprocess_input(
+            batch_images
+        ), tf.keras.utils.to_categorical(batch_labels, num_classes, dtype="bool")
