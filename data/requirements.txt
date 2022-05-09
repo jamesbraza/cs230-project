@@ -1,4 +1,0 @@
-kaggle
-matplotlib
-numpy
-pandas
