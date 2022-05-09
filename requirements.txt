@@ -1,1 +1,6 @@
+kaggle
+matplotlib
+numpy
+pandas
+tensorboard
 tensorflow
