@@ -1,2 +1,3 @@
-# Training logs
-train
+# Training files
+checkpoints
+logs
