@@ -56,11 +56,16 @@ def get_dataset(
     return train_ds, dev_ds, None
 
 
+def get_num_classes(dataset: tf.data.Dataset) -> int:
+    """Get the number of classes within a dataset."""
+    return len(dataset.class_names)
+
+
 def make_vgg_preprocessing_generator(
     dataset: tf.data.Dataset,
 ) -> Iterator[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
     """Make an iterator that pre-processes a dataset for VGGNet training."""
-    num_classes = len(dataset.class_names)
+    num_classes = get_num_classes(dataset)
     for batch_images, batch_labels in dataset:
         yield tf.keras.applications.vgg16.preprocess_input(
             batch_images
