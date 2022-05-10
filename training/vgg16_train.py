@@ -32,7 +32,7 @@ steps_per_epoch: int = train_ds.cardinality().numpy()
 model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(50, 50, 20))
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
-# 3. Fit the training data
+# 3. Perform the actual training
 current_ts = get_ts_now_as_str()
 ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
@@ -48,4 +48,6 @@ model.fit(
     steps_per_epoch=steps_per_epoch,
     callbacks=[callbacks],
 )
+
+# 4. Save the model for future use
 model.save(os.path.join(MODELS_DIR_ABS_PATH, current_ts))
