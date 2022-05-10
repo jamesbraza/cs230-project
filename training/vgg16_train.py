@@ -6,12 +6,10 @@ import tensorflow as tf
 
 from data.dataset_utils import get_dataset, get_num_classes
 from models.vgg16 import VGG_IMAGE_SIZE, make_tl_model
+from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
 
 NUM_EPOCHS = 10
-LOG_DIR_ABS_PATH = os.path.join(os.getcwd(), "logs")
-CKPTS_DIR_ABS_PATH = os.path.join(os.getcwd(), "checkpoints")
-MODELS_DIR_ABS_PATH = os.path.join(os.getcwd(), "models")
 
 
 def make_vgg_preprocessing_generator(
