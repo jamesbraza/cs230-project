@@ -11,6 +11,7 @@ from training.utils import get_ts_now_as_str
 NUM_EPOCHS = 10
 LOG_DIR_ABS_PATH = os.path.join(os.getcwd(), "logs")
 CKPTS_DIR_ABS_PATH = os.path.join(os.getcwd(), "checkpoints")
+MODELS_DIR_ABS_PATH = os.path.join(os.getcwd(), "models")
 
 
 def make_vgg_preprocessing_generator(
