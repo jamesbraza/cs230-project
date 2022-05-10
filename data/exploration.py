@@ -7,7 +7,12 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from data.make import FULL_ABS_PATH, SHIRTS_ABS_PATH, SMALL_TRAIN_ABS_PATH, get_dataset
+from data.dataset_utils import (
+    FULL_ABS_PATH,
+    SHIRTS_ABS_PATH,
+    SMALL_TRAIN_ABS_PATH,
+    get_dataset,
+)
 
 FULL_CSV_ABS_PATH = os.path.join(FULL_ABS_PATH, "images.csv")
 SHIRTS_CSV_ABS_PATH = os.path.join(SHIRTS_ABS_PATH, "data.csv")
