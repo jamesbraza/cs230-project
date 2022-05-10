@@ -57,7 +57,12 @@ def explore_small_dataset() -> None:
         plt.show()
 
 
+def explore_shirts_dataset() -> None:
+    train_ds, dev_ds, _ = get_dataset("shirts")
+
+
 if __name__ == "__main__":
+    explore_shirts_dataset()
     explore_small_dataset()
     explore_small_dataset_raw()
     explore_full_dataset_raw()

@@ -41,9 +41,10 @@ def get_dataset(
         )
     if name == "full":
         directory = FULL_ABS_PATH
+        raise NotImplementedError("TODO: full dataset import.")
     else:
         directory = SHIRTS_ABS_PATH
-    kwargs = {"validation_split": 0.2} | kwargs
+    kwargs = {"seed": 42, "validation_split": 0.1} | kwargs
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **({"subset": "training"} | kwargs)
     )
