@@ -16,10 +16,9 @@ def make_vgg_preprocessing_generator(
     dataset: tf.data.Dataset, num_epochs: int
 ) -> Iterator[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
     """Make an iterator that pre-processes a dataset for VGGNet training."""
-    num_classes = get_num_classes(dataset)
     for batch_images, batch_labels in dataset.repeat(num_epochs):
         yield batch_images, tf.keras.utils.to_categorical(
-            batch_labels, num_classes, dtype="bool"
+            batch_labels, get_num_classes(dataset), dtype="bool"
         )
 
 
