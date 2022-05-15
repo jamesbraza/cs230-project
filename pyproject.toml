@@ -29,6 +29,8 @@ disable = [
     "wildcard-import",  # Wildcard imports are convenient
     "unsubscriptable-object",  # Buggy, SEE: https://github.com/PyCQA/pylint/issues/3637
     "no-self-use",  # Don't care to enforce this
+    "unused-variable",  # Don't care to enforce this
+    "invalid-name",  # Don't care to enforce this
 ]
 
 # Enable the message, report, category or checker with the given id(s).
