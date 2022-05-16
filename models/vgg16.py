@@ -9,20 +9,24 @@ NUM_EPOCHS = 10
 
 
 def make_tl_model(
-    num_classes: int, top_fc_units: tuple[int, int, int] = VGG_TOP_FC_UNITS
+    num_classes: int, top_fc_units: tuple[int, ...] = VGG_TOP_FC_UNITS
 ) -> tf.keras.Model:
     """
     Make a VGG16 model given a number of classes and FC units.
 
     Args:
         num_classes: Number of classes for the final softmax layer.
-        top_fc_units: Number of units to use in each of the top three FC layers.
+        top_fc_units: Number of units to use in each of the top FC layers.
+            Default is three FC layers per the VGGNet paper.
 
     Returns:
         Model created.
     """
     base_model = tf.keras.applications.VGG16(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
+    dense_layers = [
+        tf.keras.layers.Dense(units, activation="relu") for units in top_fc_units
+    ]
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
@@ -31,9 +35,7 @@ def make_tl_model(
             ),
             base_model,
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(top_fc_units[0], activation="relu"),
-            tf.keras.layers.Dense(top_fc_units[1], activation="relu"),
-            tf.keras.layers.Dense(top_fc_units[2], activation="relu"),
+            *dense_layers,
             # Last layer matches number of classes
             tf.keras.layers.Dense(num_classes, activation="softmax"),
         ]
