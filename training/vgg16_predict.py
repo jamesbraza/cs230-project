@@ -15,8 +15,8 @@ PLOT_IMAGES = False
 
 def get_dataset_accuracy(
     model: tf.keras.Model, dataset: tf.data.Dataset, plot_images: bool = PLOT_IMAGES
-) -> float:
-    """Get the prediction accuracy given a trained model and a dataset."""
+) -> tuple[float, int]:
+    """Get the prediction accuracy and image count using the passed model an dataset."""
     num_correct, total = 0, 0
     for batch_images, batch_labels in dataset:
         preds: npt.NDArray[np.float32] = model.predict(batch_images)
@@ -31,7 +31,7 @@ def get_dataset_accuracy(
                 for image, label_pred in zip(batch_images, labels_preds)
             ]
             plot_batch_predictions(images_labels_preds, dataset.class_names)
-    return num_correct / total
+    return num_correct / total, total
 
 
 # 1. Get the dataset(s)
@@ -44,12 +44,15 @@ model_location = os.path.join(MODELS_DIR_ABS_PATH, MODEL_NAME)
 model = tf.keras.models.load_model(model_location)
 
 # 3. Make predictions on the dataset(s)
-train_set_accuracy = get_dataset_accuracy(model, train_ds)
-val_set_accuracy = get_dataset_accuracy(model, val_ds)
-test_set_accuracy = get_dataset_accuracy(model, test_ds)
+train_set_accuracy, num_train_images = get_dataset_accuracy(model, train_ds)
+val_set_accuracy, num_val_images = get_dataset_accuracy(model, val_ds)
+test_set_accuracy, num_test_images = get_dataset_accuracy(model, test_ds)
 print(
-    f"Training set accuracy: {train_set_accuracy * 100:.2f}%{os.linesep}"
-    f"Validation set accuracy: {val_set_accuracy * 100:.2f}%{os.linesep}"
-    f"Test set accuracy: {test_set_accuracy * 100:.2f}%"
+    f"Training set accuracy: {train_set_accuracy * 100:.2f}% correct "
+    f"of {num_train_images} images{os.linesep}"
+    f"Validation set accuracy: {val_set_accuracy * 100:.2f}% correct "
+    f"of {num_val_images} images{os.linesep}"
+    f"Test set accuracy: {test_set_accuracy * 100:.2f}% correct "
+    f"of {num_test_images} images"
 )
 _ = 0  # Debug here
