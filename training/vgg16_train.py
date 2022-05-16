@@ -28,7 +28,7 @@ train_data_generator = make_vgg_preprocessing_generator(train_ds, NUM_EPOCHS)
 steps_per_epoch: int = train_ds.cardinality().numpy()
 
 # 2. Create and compile the model
-model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(50, 50, 20))
+model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(64, 64, 16))
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # 3. Perform the actual training
@@ -50,3 +50,4 @@ model.fit(
 
 # 4. Save the model for future use
 model.save(os.path.join(MODELS_DIR_ABS_PATH, current_ts))
+_ = 0  # Debug here
