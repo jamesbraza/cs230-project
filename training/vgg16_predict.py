@@ -43,8 +43,13 @@ train_ds, val_ds, test_ds = get_dataset(
 model_location = os.path.join(MODELS_DIR_ABS_PATH, MODEL_NAME)
 model = tf.keras.models.load_model(model_location)
 
-# 3. Make predictions on the entire dataset
+# 3. Make predictions on the dataset(s)
 train_set_accuracy = get_dataset_accuracy(model, train_ds)
 val_set_accuracy = get_dataset_accuracy(model, val_ds)
 test_set_accuracy = get_dataset_accuracy(model, test_ds)
+print(
+    f"Training set accuracy: {train_set_accuracy * 100:.2f}%{os.linesep}"
+    f"Validation set accuracy: {val_set_accuracy * 100:.2f}%{os.linesep}"
+    f"Test set accuracy: {test_set_accuracy * 100:.2f}%"
+)
 _ = 0  # Debug here
