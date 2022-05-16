@@ -21,8 +21,7 @@ model = tf.keras.models.load_model(model_location)
 
 # 3. Make predictions on the entire test dataset
 for batch_images, batch_labels in test_ds:
-    preprocessed_images = tf.keras.applications.vgg16.preprocess_input(batch_images)
-    preds: npt.NDArray[np.float] = model.predict(preprocessed_images)
+    preds: npt.NDArray[np.float] = model.predict(batch_images)
     fig, ax = plt.subplots(nrows=4, ncols=4)
     for i, image in enumerate(batch_images):
         fig.axes[i].imshow(image.numpy().astype("uint8"))
