@@ -1,5 +1,5 @@
 import os
-from collections.abc import Iterator
+from collections.abc import Iterable
 
 import numpy.typing as npt
 import tensorflow as tf
@@ -10,21 +10,36 @@ from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
 
 NUM_EPOCHS = 10
+VALIDATION_STEPS = 3
 
 
 def make_vgg_preprocessing_generator(
-    dataset: tf.data.Dataset, num_epochs: int
-) -> Iterator[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
-    """Make an iterator that pre-processes a dataset for VGGNet training."""
+    dataset: tf.data.Dataset, num_epochs: int, preprocess_image: bool = False
+) -> Iterable[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
+    """
+    Make an iterator that pre-processes a dataset for VGGNet training.
+
+    Args:
+        dataset: TensorFlow dataset to preprocess.
+        num_epochs: Count of training epochs.
+        preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
+            Default is False because this is built into the model.
+
+    Returns:
+        Iterable of (image, categorical label) tuples.
+    """
     for batch_images, batch_labels in dataset.repeat(num_epochs):
+        if preprocess_image:
+            batch_images = tf.keras.applications.vgg16.preprocess_input(batch_images)
         yield batch_images, tf.keras.utils.to_categorical(
             batch_labels, get_num_classes(dataset), dtype="bool"
         )
 
 
 # 1. Prepare the training data
-train_ds, _, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
 train_data_generator = make_vgg_preprocessing_generator(train_ds, NUM_EPOCHS)
+val_data_generator = make_vgg_preprocessing_generator(val_ds, NUM_EPOCHS)
 steps_per_epoch: int = train_ds.cardinality().numpy()
 
 # 2. Create and compile the model
@@ -45,6 +60,8 @@ model.fit(
     train_data_generator,
     epochs=NUM_EPOCHS,
     steps_per_epoch=steps_per_epoch,
+    validation_data=val_data_generator,
+    validation_steps=VALIDATION_STEPS,
     callbacks=[callbacks],
 )
 
