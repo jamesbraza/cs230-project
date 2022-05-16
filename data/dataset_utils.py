@@ -31,7 +31,7 @@ def get_dataset(
                 and pixel values will be float. Cast to uint8 for visualization.
 
     Returns:
-        Tuple of datasets: train, dev/validation, test.
+        Tuple of datasets: train, validation/dev, test.
     """
     if name == "small":
         paths = [SMALL_TRAIN_ABS_PATH, SMALL_DEV_ABS_PATH, SMALL_TEST_ABS_PATH]
@@ -48,10 +48,10 @@ def get_dataset(
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **({"subset": "training"} | kwargs)
     )
-    dev_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    val_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **({"subset": "validation"} | kwargs)
     )
-    return train_ds, dev_ds, None
+    return train_ds, val_ds, None
 
 
 def get_num_classes(dataset: tf.data.Dataset) -> int:

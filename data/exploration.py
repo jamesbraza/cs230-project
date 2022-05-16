@@ -43,7 +43,7 @@ def explore_shirts_dataset_raw() -> None:
 
 
 def explore_small_dataset() -> None:
-    train_ds, dev_ds, test_ds = get_dataset("small")
+    train_ds, val_ds, test_ds = get_dataset("small")
     train_batches: tf.data.Dataset = train_ds.take(1)
 
     fig, ax = plt.subplots(nrows=3, ncols=3)
@@ -58,7 +58,7 @@ def explore_small_dataset() -> None:
 
 
 def explore_shirts_dataset() -> None:
-    train_ds, dev_ds, _ = get_dataset("shirts")
+    train_ds, val_ds, _ = get_dataset("shirts")
 
 
 if __name__ == "__main__":
