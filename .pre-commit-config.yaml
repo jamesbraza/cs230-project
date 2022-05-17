@@ -29,6 +29,9 @@ repos:
     rev: v1.26.3
     hooks:
       - id: yamllint
+        types: [file]
+        # SEE: https://regex101.com/r/ydseiS/4
+        files: \.(ya?ml(lint)?|cff)$
         args:
           - "--strict"
   - repo: https://github.com/myint/docformatter
