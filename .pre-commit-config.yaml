@@ -29,6 +29,8 @@ repos:
     rev: v1.26.3
     hooks:
       - id: yamllint
+        types: [file]
+        files: \.(cff|yml|yaml)$
         args:
           - "--strict"
   - repo: https://github.com/myint/docformatter
