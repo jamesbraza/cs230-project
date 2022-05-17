@@ -30,7 +30,8 @@ repos:
     hooks:
       - id: yamllint
         types: [file]
-        files: \.(cff|yml|yaml)$
+        # SEE: https://regex101.com/r/ydseiS/2
+        files: \.(ya?ml(lint)*|cff)$
         args:
           - "--strict"
   - repo: https://github.com/myint/docformatter
