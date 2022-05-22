@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -11,7 +12,7 @@ def get_ts_now_as_str() -> str:
 
 
 def plot_batch_predictions(
-    images_labels_preds: list[tuple[tf.Tensor, int, int]], class_names: list[str]
+    images_labels_preds: List[Tuple[tf.Tensor, int, int]], class_names: List[str]
 ) -> None:
     batch_size = len(images_labels_preds)
     subplot_size = int(math.sqrt(batch_size))
