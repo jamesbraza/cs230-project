@@ -50,8 +50,8 @@ nano ~/.ssh/authorized_keys
 ### Instance Set Up
 
 ```bash
-sudo apt update -y
-sudo apt install libsqlite3-dev  # SEE: https://stackoverflow.com/a/38842600/11163122
+# Install all commands here:
+# https://github.com/pyenv/pyenv/wiki#suggested-build-environment
 sudo apt autoremove -y
 curl https://pyenv.run | bash
 # Follow instructions on what to append to ~/.bashrc
