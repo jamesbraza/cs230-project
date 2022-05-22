@@ -11,6 +11,14 @@ Here are the settings used to create our EC2 instance:
   - 4 CPU, 61 GiB memory
 - Storage: 1x 100 GiB gp2
 
+Also, an Elastic IP was allocated for a fixed IP address:
+
+- Resource type: instance
+- Instance: *enter instance ID*
+  - From the EC2 instance made above
+- Private IP address: (left blank)
+- Reassociation: checked ("Allow this Elastic IP address to be reassociated")
+
 ### `ssh` Set Up
 
 ```bash
