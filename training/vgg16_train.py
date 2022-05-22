@@ -1,7 +1,7 @@
 import os
 from typing import Iterable, List, Tuple
 
-import numpy.typing as npt
+import numpy as np
 import tensorflow as tf
 
 from data.dataset_utils import get_dataset, get_num_classes
@@ -16,7 +16,7 @@ VALIDATION_STEPS = 4
 
 def make_vgg_preprocessing_generator(
     dataset: tf.data.Dataset, num_epochs: int = -1, preprocess_image: bool = False
-) -> Iterable[Tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
+) -> Iterable[Tuple[tf.Tensor, np.ndarray]]:
     """
     Make an iterator that pre-processes a dataset for VGGNet training.
 

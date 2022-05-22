@@ -3,7 +3,6 @@ import os
 from typing import Dict, List, Tuple
 
 import numpy as np
-import numpy.typing as npt
 import tensorflow as tf
 
 from data.dataset_utils import get_dataset
@@ -23,7 +22,7 @@ def get_dataset_predict_stats(
     """Get the number correct and image count using the passed model and dataset."""
     correct_totals = collections.defaultdict(lambda: [0, 0])
     for batch_images, batch_labels in dataset:
-        preds: npt.NDArray[np.float32] = model.predict(batch_images)
+        preds: np.ndarray = model.predict(batch_images)
         labels_preds: List[Tuple[int, int]] = [
             (int(label), np.argmax(pred)) for label, pred in zip(batch_labels, preds)
         ]
