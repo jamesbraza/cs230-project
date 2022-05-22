@@ -14,14 +14,15 @@ VALIDATION_STEPS = 3
 
 
 def make_vgg_preprocessing_generator(
-    dataset: tf.data.Dataset, num_epochs: int, preprocess_image: bool = False
+    dataset: tf.data.Dataset, num_epochs: int = -1, preprocess_image: bool = False
 ) -> Iterable[tuple[tf.Tensor, npt.NDArray[tf.bool]]]:
     """
     Make an iterator that pre-processes a dataset for VGGNet training.
 
     Args:
         dataset: TensorFlow dataset to preprocess.
-        num_epochs: Count of training epochs.
+        num_epochs: Optional count of training epochs.
+            Default of -1 will repeat indefinitely.
         preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
             Default is False because this is built into the model.
 
