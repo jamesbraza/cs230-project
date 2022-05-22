@@ -41,7 +41,7 @@ def make_vgg_preprocessing_generator(
 # 1. Prepare the training data
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
-steps_per_epoch: int = train_ds.cardinality().numpy()
+steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 
 # 2. Create and compile the model
@@ -61,7 +61,7 @@ callbacks: list[tf.keras.callbacks.Callback] = [
         patience=ES_PATIENCE_EPOCHS, restore_best_weights=True
     ),
 ]
-model.fit(
+history: tf.keras.callbacks.History = model.fit(
     train_data_generator,
     epochs=MAX_NUM_EPOCHS,
     steps_per_epoch=steps_per_epoch,
