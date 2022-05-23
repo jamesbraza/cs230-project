@@ -10,7 +10,7 @@ from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 32
+MAX_NUM_EPOCHS = 64
 # Patience of EarlyStopping callback
 ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
