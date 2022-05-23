@@ -29,7 +29,6 @@ def make_vgg_preprocessing_generator(
         num_repeat: Optional count of dataset repetitions.
             Default of -1 will repeat indefinitely.
             For training data: set to the number of epochs, or -1.
-            For validation data: set to 1, since repeating is undesirable here.
         preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
             Default is False because this is built into the model.
 
@@ -47,8 +46,12 @@ def make_vgg_preprocessing_generator(
 # 1. Prepare the training data
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
-steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
-val_data_generator = make_vgg_preprocessing_generator(val_ds, num_repeat=1)
+train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
+val_data_generator = make_vgg_preprocessing_generator(val_ds)
+if VALIDATION_STEPS is None:
+    val_steps_per_epoch: int = val_ds.cardinality().numpy()
+else:
+    val_steps_per_epoch = VALIDATION_STEPS
 
 # 2. Create and compile the model
 model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(64, 64, 16))
@@ -70,9 +73,9 @@ callbacks: List[tf.keras.callbacks.Callback] = [
 history: tf.keras.callbacks.History = model.fit(
     train_data_generator,
     epochs=MAX_NUM_EPOCHS,
-    steps_per_epoch=steps_per_epoch,
+    steps_per_epoch=train_steps_per_epoch,
     validation_data=val_data_generator,
-    validation_steps=VALIDATION_STEPS,
+    validation_steps=val_steps_per_epoch,
     callbacks=[callbacks],
 )
 
