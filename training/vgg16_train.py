@@ -12,7 +12,7 @@ from training.utils import get_ts_now_as_str
 # Num epochs if not early stopped
 MAX_NUM_EPOCHS = 16
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 4
+ES_PATIENCE_EPOCHS = 5
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -67,7 +67,10 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
     tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=True),
     tf.keras.callbacks.EarlyStopping(
-        patience=ES_PATIENCE_EPOCHS, restore_best_weights=True, verbose=1
+        monitor="val_accuracy",
+        patience=ES_PATIENCE_EPOCHS,
+        restore_best_weights=True,
+        verbose=1,
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
