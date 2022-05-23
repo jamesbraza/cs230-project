@@ -32,9 +32,7 @@ def make_tl_model(
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
-            tf.keras.layers.Lambda(
-                lambda x: tf.keras.applications.vgg16.preprocess_input(x)
-            ),
+            tf.keras.layers.Lambda(tf.keras.applications.vgg16.preprocess_input),
             base_model,
             tf.keras.layers.Flatten(),
             *dense_layers,
