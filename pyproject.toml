@@ -48,7 +48,7 @@ max-line-length = 120
 # SEE: http://mypy.readthedocs.io/en/latest/config_file.html#config-file
 
 # Specifies the Python version used to parse and check the target program.
-python_version = "3.10"
+python_version = "3.8"
 
 # Warns about casting an expression to its inferred type.
 warn_redundant_casts = true
