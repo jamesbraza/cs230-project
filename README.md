@@ -4,7 +4,7 @@
 
 ## Developers
 
-This project was developed using Python 3.10.
+This project was developed using Python 3.8.
 
 ### Getting Started
 
