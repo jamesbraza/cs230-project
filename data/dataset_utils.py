@@ -1,6 +1,7 @@
 import os.path
-from typing import Literal, Optional, Tuple
+from typing import Dict, Literal, Optional, Tuple
 
+import pandas as pd
 import tensorflow as tf
 
 DATA_DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +16,41 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
 DatasetNames = Literal["small", "full", "shirts"]
+
+
+def get_full_dataset(
+    batch_size: int = 32, image_size: Tuple[int, int] = (256, 256)
+) -> tf.data.Dataset:
+    """
+    Convert the full clothing dataset into a tensorflow Dataset.
+
+    Args:
+        batch_size: Desired batch size.
+        image_size: Desired image size.
+
+    Returns:
+        BatchDataset corresponding with the input batch size.
+    """
+    data = pd.read_csv(os.path.join(FULL_ABS_PATH, "images.csv"))
+    orig_images = os.path.join(FULL_ABS_PATH, "images_original")
+    data["image"] = data["image"].map(lambda x: os.path.join(orig_images, f"{x}.jpg"))
+    filenames: tf.Tensor = tf.constant(data["image"], dtype=tf.string)
+    data["label"] = data["label"].str.lower()
+    class_name_to_label: Dict[str, int] = {
+        label: i for i, label in enumerate(set(data["label"]))
+    }
+    labels: tf.Tensor = tf.constant(
+        data["label"].map(class_name_to_label.__getitem__), dtype=tf.uint8
+    )
+    dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
+
+    def _parse_function(filename, label):
+        jpg_image: tf.Tensor = tf.io.decode_jpeg(tf.io.read_file(filename))
+        return tf.image.resize(jpg_image, size=image_size), label
+
+    dataset = dataset.map(_parse_function)
+    dataset.class_names = list(class_name_to_label.keys())
+    return dataset.batch(batch_size)
 
 
 def get_dataset(
