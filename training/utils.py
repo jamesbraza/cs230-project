@@ -11,8 +11,11 @@ def get_ts_now_as_str() -> str:
     return datetime.now().isoformat().replace(":", "-")
 
 
+ImagesLabelsPreds = List[Tuple[tf.Tensor, int, int]]
+
+
 def plot_batch_predictions(
-    images_labels_preds: List[Tuple[tf.Tensor, int, int]], class_names: List[str]
+    images_labels_preds: ImagesLabelsPreds, class_names: List[str]
 ) -> None:
     batch_size = len(images_labels_preds)
     subplot_size = int(math.sqrt(batch_size))

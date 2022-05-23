@@ -78,6 +78,7 @@ show_column_numbers = true
 
 module = [
     "matplotlib.*",
+    "numpy",
     "pandas",
     "tensorflow",
 ]

@@ -1,6 +1,6 @@
 import collections
 import os
-from typing import Dict, List, Tuple
+from typing import DefaultDict, Dict, List, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -8,7 +8,7 @@ import tensorflow as tf
 from data.dataset_utils import get_dataset
 from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
-from training.utils import plot_batch_predictions
+from training.utils import ImagesLabelsPreds, plot_batch_predictions
 
 MODEL_NAME = "2022-05-15T19-17-03.103670"
 PLOT_IMAGES = False
@@ -20,7 +20,9 @@ def get_dataset_predict_stats(
     model: tf.keras.Model, dataset: tf.data.Dataset, plot_images: bool = PLOT_IMAGES
 ) -> Statistics:
     """Get the number correct and image count using the passed model and dataset."""
-    correct_totals = collections.defaultdict(lambda: [0, 0])
+    correct_totals: DefaultDict[int, List[int]] = collections.defaultdict(
+        lambda: [0, 0]
+    )
     for batch_images, batch_labels in dataset:
         preds: np.ndarray = model.predict(batch_images)
         labels_preds: List[Tuple[int, int]] = [
@@ -31,7 +33,7 @@ def get_dataset_predict_stats(
                 correct_totals[label][0] += 1  # Num correct
             correct_totals[label][1] += 1  # Total
         if plot_images:
-            images_labels_preds: List[tuple] = [
+            images_labels_preds: ImagesLabelsPreds = [
                 (image, *label_pred)
                 for image, label_pred in zip(batch_images, labels_preds)
             ]
