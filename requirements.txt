@@ -3,4 +3,4 @@ matplotlib
 numpy
 pandas
 tensorboard
-tensorflow
+tensorflow<2.5  # Required for cuDNN, see: https://github.com/tensorflow/text/issues/554#issuecomment-1134026947

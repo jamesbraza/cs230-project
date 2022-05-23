@@ -1,5 +1,5 @@
 import os.path
-from typing import Literal, TypeAlias
+from typing import Literal, Optional, Tuple
 
 import tensorflow as tf
 
@@ -14,12 +14,12 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
-DatasetNames: TypeAlias = Literal["small", "full", "shirts"]
+DatasetNames = Literal["small", "full", "shirts"]
 
 
 def get_dataset(
     name: DatasetNames, **kwargs
-) -> tuple[tf.data.Dataset, tf.data.Dataset, tf.data.Dataset | None]:
+) -> Tuple[tf.data.Dataset, tf.data.Dataset, Optional[tf.data.Dataset]]:
     """
     Get one of the three datasets discussed in the README.
 
@@ -44,12 +44,12 @@ def get_dataset(
         raise NotImplementedError("TODO: full dataset import.")
     else:
         directory = SHIRTS_ABS_PATH
-    kwargs = {"seed": 42, "validation_split": 0.1} | kwargs
+    kwargs = {**{"seed": 42, "validation_split": 0.1}, **kwargs}
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        directory, **({"subset": "training"} | kwargs)
+        directory, **{**{"subset": "training"}, **kwargs}
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        directory, **({"subset": "validation"} | kwargs)
+        directory, **{**{"subset": "validation"}, **kwargs}
     )
     return train_ds, val_ds, None
 

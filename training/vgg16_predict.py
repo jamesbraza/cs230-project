@@ -1,9 +1,8 @@
 import collections
 import os
-from typing import TypeAlias
+from typing import Dict, List, Tuple
 
 import numpy as np
-import numpy.typing as npt
 import tensorflow as tf
 
 from data.dataset_utils import get_dataset
@@ -14,7 +13,7 @@ from training.utils import plot_batch_predictions
 MODEL_NAME = "2022-05-15T19-17-03.103670"
 PLOT_IMAGES = False
 
-Statistics: TypeAlias = dict[tuple[int, str], tuple[int, int]]
+Statistics = Dict[Tuple[int, str], Tuple[int, int]]
 
 
 def get_dataset_predict_stats(
@@ -23,8 +22,8 @@ def get_dataset_predict_stats(
     """Get the number correct and image count using the passed model and dataset."""
     correct_totals = collections.defaultdict(lambda: [0, 0])
     for batch_images, batch_labels in dataset:
-        preds: npt.NDArray[np.float32] = model.predict(batch_images)
-        labels_preds: list[tuple[int, int]] = [
+        preds: np.ndarray = model.predict(batch_images)
+        labels_preds: List[Tuple[int, int]] = [
             (int(label), np.argmax(pred)) for label, pred in zip(batch_labels, preds)
         ]
         for label, pred in labels_preds:
@@ -32,7 +31,7 @@ def get_dataset_predict_stats(
                 correct_totals[label][0] += 1  # Num correct
             correct_totals[label][1] += 1  # Total
         if plot_images:
-            images_labels_preds: list[tuple] = [
+            images_labels_preds: List[tuple] = [
                 (image, *label_pred)
                 for image, label_pred in zip(batch_images, labels_preds)
             ]
@@ -45,7 +44,7 @@ def get_dataset_predict_stats(
 
 def get_dataset_accuracy(
     stats: Statistics,
-) -> tuple[float, int, dict[tuple[int, str], float]]:
+) -> Tuple[float, int, Dict[Tuple[int, str], float]]:
     """Get the accuracy % and total image count from a statistics dict."""
     num_correct, num_total, per_label_acc = 0, 0, {}
     for label_tup, (correct, total) in stats.items():

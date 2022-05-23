@@ -1,5 +1,7 @@
 """VGG docs: https://keras.io/api/applications/vgg/."""
 
+from typing import Tuple
+
 import tensorflow as tf
 
 VGG_IMAGE_SIZE = (224, 224)
@@ -9,7 +11,7 @@ NUM_EPOCHS = 10
 
 
 def make_tl_model(
-    num_classes: int, top_fc_units: tuple[int, ...] = VGG_TOP_FC_UNITS
+    num_classes: int, top_fc_units: Tuple[int, ...] = VGG_TOP_FC_UNITS
 ) -> tf.keras.Model:
     """
     Make a VGG16 model given a number of classes and FC units.
