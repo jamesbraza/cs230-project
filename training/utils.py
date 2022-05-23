@@ -1,14 +1,34 @@
 import math
+import os
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+from training import MODELS_DIR_ABS_PATH
+
 
 def get_ts_now_as_str() -> str:
     """Get an ISO 8601-compliant timestamp for use in naming."""
-    return datetime.now().isoformat().replace(":", "-")
+    return datetime.now().isoformat().replace(":", "_")
+
+
+def get_most_recent_model(models_dir: str = MODELS_DIR_ABS_PATH) -> str:
+    """Get the most recent model in the input directory."""
+    most_recent_file: Tuple[str, Optional[datetime]] = "", None
+    for file in os.listdir(models_dir):
+        abs_file = os.path.join(models_dir, file)
+        if os.path.isdir(abs_file):
+            try:
+                ts = datetime.fromisoformat(file.replace("_", ":"))
+            except ValueError:
+                continue
+            if most_recent_file[1] is None or ts > most_recent_file[1]:
+                most_recent_file = abs_file, ts
+    if most_recent_file == "":
+        raise LookupError(f"Didn't find a model in {models_dir}.")
+    return most_recent_file[0]
 
 
 ImagesLabelsPreds = List[Tuple[tf.Tensor, int, int]]

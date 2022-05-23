@@ -8,9 +8,13 @@ import tensorflow as tf
 from data.dataset_utils import get_dataset
 from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
-from training.utils import ImagesLabelsPreds, plot_batch_predictions
+from training.utils import (
+    ImagesLabelsPreds,
+    get_most_recent_model,
+    plot_batch_predictions,
+)
 
-MODEL_NAME = "2022-05-15T19-17-03.103670"
+MODEL_NAME = get_most_recent_model()
 PLOT_IMAGES = False
 
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
