@@ -19,22 +19,24 @@ VALIDATION_STEPS: Optional[int] = None
 
 
 def make_vgg_preprocessing_generator(
-    dataset: tf.data.Dataset, num_epochs: int = -1, preprocess_image: bool = False
+    dataset: tf.data.Dataset, num_repeat: int = -1, preprocess_image: bool = False
 ) -> Iterable[Tuple[tf.Tensor, np.ndarray]]:
     """
     Make an iterator that pre-processes a dataset for VGGNet training.
 
     Args:
         dataset: TensorFlow dataset to preprocess.
-        num_epochs: Optional count of training epochs.
+        num_repeat: Optional count of dataset repetitions.
             Default of -1 will repeat indefinitely.
+            For training data: set to the number of epochs, or -1.
+            For validation data: set to 1, since repeating is undesirable here.
         preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
             Default is False because this is built into the model.
 
     Returns:
         Iterable of (image, categorical label) tuples.
     """
-    for batch_images, batch_labels in dataset.repeat(num_epochs):
+    for batch_images, batch_labels in dataset.repeat(num_repeat):
         if preprocess_image:
             batch_images = tf.keras.applications.vgg16.preprocess_input(batch_images)
         yield batch_images, tf.keras.utils.to_categorical(
@@ -46,7 +48,7 @@ def make_vgg_preprocessing_generator(
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
 steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
-val_data_generator = make_vgg_preprocessing_generator(val_ds)
+val_data_generator = make_vgg_preprocessing_generator(val_ds, num_repeat=1)
 
 # 2. Create and compile the model
 model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(64, 64, 16))
