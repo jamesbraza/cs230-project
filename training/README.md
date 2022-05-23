@@ -9,7 +9,8 @@ Here are the settings used to create our EC2 instance:
 - AMI: Deep Learning AMI (Ubuntu 18.04) Version 50.0
 - Instance Type: p2.xlarge
   - 4 CPU, 61 GiB memory
-- Storage: 1x 100 GiB gp2
+- Storage: 1x 200 GiB gp2
+  - Default: 110 GiB
 
 Also, an Elastic IP was allocated for a fixed IP address:
 
