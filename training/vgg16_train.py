@@ -10,9 +10,9 @@ from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 16
+MAX_NUM_EPOCHS = 32
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 5
+ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -54,7 +54,9 @@ else:
     val_steps_per_epoch = VALIDATION_STEPS
 
 # 2. Create and compile the model
-model = make_tl_model(num_classes=get_num_classes(train_ds), top_fc_units=(64, 64, 16))
+model = make_tl_model(
+    num_classes=get_num_classes(train_ds), top_fc_units=(128, 128, 32)
+)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # 3. Perform the actual training
