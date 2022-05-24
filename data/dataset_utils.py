@@ -49,8 +49,9 @@ def get_full_dataset(
         return tf.image.resize(jpg_image, size=image_size), label
 
     dataset = dataset.map(_parse_function)
-    dataset.class_names = list(class_name_to_label.keys())
-    return dataset.batch(batch_size)
+    batched_dataset = dataset.batch(batch_size)
+    batched_dataset.class_names = list(class_name_to_label.keys())
+    return batched_dataset
 
 
 def get_dataset(
