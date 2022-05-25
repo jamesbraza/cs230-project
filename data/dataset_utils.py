@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Dict, Iterable, List, Literal, Optional, Tuple
 
 import pandas as pd
 import tensorflow as tf
@@ -24,6 +24,7 @@ def get_full_dataset(
     shuffle: bool = True,
     seed: Optional[int] = None,
     validation_split: float = 0.1,
+    filter_labels: Optional[Iterable[str]] = None,
 ) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     """
     Convert the full clothing dataset into a tensorflow Dataset.
@@ -34,6 +35,14 @@ def get_full_dataset(
         shuffle: If you want to shuffle the dataset.
         seed: Optional seed for shuffling.
         validation_split: Split in [0, 1] for validation data.
+        filter_labels: Optional allow list of labels.
+            This is designed to enable this dataset for data augmentation.
+            valid_options = [
+                'outwear', 'longsleeve', 'shirt', 'skirt', 'body', 'skip',
+                'shoes', 'pants', 'hat', 'hoodie', 'not sure', 'top',
+                'undershirt', 'dress', 'blazer', 'blouse', 't-shirt', 'other',
+                'shorts', 'polo'
+            ]
 
     Returns:
         BatchDatasets of training and validation data.
@@ -49,8 +58,11 @@ def get_full_dataset(
         try:
             with open(image_path, "rb") as fobj:
                 # SEE: https://keras.io/examples/vision/image_classification_from_scratch/
-                if tf.compat.as_bytes("JFIF") in fobj.peek(10):
-                    valid_data_pre.append((image_path, label.lower()))
+                if not tf.compat.as_bytes("JFIF") in fobj.peek(10):
+                    continue
+                if filter_labels is not None and label.lower() not in filter_labels:
+                    continue
+                valid_data_pre.append((image_path, label.lower()))
         except FileNotFoundError:
             pass
     valid_data = pd.DataFrame(valid_data_pre, columns=["image", "label"])
