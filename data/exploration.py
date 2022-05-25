@@ -12,7 +12,6 @@ from data.dataset_utils import (
     SHIRTS_ABS_PATH,
     SMALL_TRAIN_ABS_PATH,
     get_dataset,
-    get_full_dataset,
 )
 
 FULL_CSV_ABS_PATH = os.path.join(FULL_ABS_PATH, "images.csv")
@@ -66,7 +65,7 @@ def explore_small_dataset() -> None:
 
 
 def explore_full_dataset() -> None:
-    train_ds = get_full_dataset()
+    train_ds, val_ds, _ = get_dataset("full")
     fig, ax = plt.subplots(nrows=3, ncols=3)
     for batch_images, batch_labels in train_ds:
         for i, axes in enumerate(fig.axes):
@@ -84,9 +83,9 @@ def explore_shirts_dataset() -> None:
 
 
 if __name__ == "__main__":
-    # explore_small_dataset_raw()
-    # explore_full_dataset_raw()
-    # explore_shirts_dataset_raw()
-    # explore_small_dataset()
+    explore_small_dataset_raw()
+    explore_full_dataset_raw()
+    explore_shirts_dataset_raw()
+    explore_small_dataset()
     explore_full_dataset()
     explore_shirts_dataset()
