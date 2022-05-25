@@ -12,6 +12,7 @@ from data.dataset_utils import (
     SHIRTS_ABS_PATH,
     SMALL_TRAIN_ABS_PATH,
     get_dataset,
+    get_full_dataset,
 )
 
 FULL_CSV_ABS_PATH = os.path.join(FULL_ABS_PATH, "images.csv")
@@ -31,6 +32,13 @@ def explore_full_dataset_raw() -> None:
     print(data.info())
     all_labels = set(data["label"])
     counts_labels = data["label"].value_counts(sort=True)
+
+    filename: str
+    sender_id: int
+    label: str
+    kids: bool
+    for filename, sender_id, label, kids in data.values:  # noqa: B007
+        label = label.lower()
 
 
 def explore_shirts_dataset_raw() -> None:
@@ -57,13 +65,29 @@ def explore_small_dataset() -> None:
         plt.show()
 
 
+def explore_full_dataset() -> None:
+    # train_ds, val_ds = get_full_dataset(filter_labels=["skirt"])
+    train_ds, val_ds, _ = get_dataset("full")
+    fig, ax = plt.subplots(nrows=3, ncols=3)
+    for batch_images, batch_labels in train_ds:
+        for i, axes in enumerate(fig.axes):
+            axes.imshow(batch_images[i].numpy().astype("uint8"))
+            axes.set_title(
+                f"{int(batch_labels[i])}: {train_ds.class_names[batch_labels[i]]}"
+            )
+        fig.tight_layout()  # Prevent title overlap
+        plt.show()
+        _ = 0
+
+
 def explore_shirts_dataset() -> None:
     train_ds, val_ds, _ = get_dataset("shirts")
 
 
 if __name__ == "__main__":
-    explore_shirts_dataset()
-    explore_small_dataset()
     explore_small_dataset_raw()
     explore_full_dataset_raw()
     explore_shirts_dataset_raw()
+    explore_small_dataset()
+    explore_full_dataset()
+    explore_shirts_dataset()
