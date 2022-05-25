@@ -1,5 +1,5 @@
-import os.path
-from typing import Dict, Literal, Optional, Tuple
+import os
+from typing import Dict, List, Literal, Optional, Tuple
 
 import pandas as pd
 import tensorflow as tf
@@ -34,13 +34,19 @@ def get_full_dataset(
     data = pd.read_csv(os.path.join(FULL_ABS_PATH, "images.csv"))
     orig_images = os.path.join(FULL_ABS_PATH, "images_original")
     data["image"] = data["image"].map(lambda x: os.path.join(orig_images, f"{x}.jpg"))
-    filenames: tf.Tensor = tf.constant(data["image"], dtype=tf.string)
-    data["label"] = data["label"].str.lower()
+    valid_data_pre: List[Tuple[str, str]] = []
+    for image_path, label in data[["image", "label"]].values:
+        with open(image_path, "rb") as fobj:
+            # SEE: https://keras.io/examples/vision/image_classification_from_scratch/
+            if tf.compat.as_bytes("JFIF") in fobj.peek(10):
+                valid_data_pre.append((image_path, label.lower()))
+    valid_data = pd.DataFrame(valid_data_pre, columns=["image", "label"])
+    filenames: tf.Tensor = tf.constant(valid_data["image"], dtype=tf.string)
     class_name_to_label: Dict[str, int] = {
-        label: i for i, label in enumerate(set(data["label"]))
+        label: i for i, label in enumerate(set(valid_data["label"]))
     }
     labels: tf.Tensor = tf.constant(
-        data["label"].map(class_name_to_label.__getitem__), dtype=tf.uint8
+        valid_data["label"].map(class_name_to_label.__getitem__), dtype=tf.uint8
     )
     dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 
