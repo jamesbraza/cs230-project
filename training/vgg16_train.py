@@ -42,11 +42,12 @@ def make_vgg_preprocessing_generator(
     Returns:
         Iterable of (image, categorical label) tuples.
     """
+    num_classes = get_num_classes(dataset)
     for batch_images, batch_labels in dataset.repeat(num_repeat):
         if preprocess_image:
             batch_images = tf.keras.applications.vgg16.preprocess_input(batch_images)
         yield batch_images, tf.keras.utils.to_categorical(
-            batch_labels, get_num_classes(dataset), dtype="bool"
+            batch_labels, num_classes, dtype="bool"
         )
 
 
