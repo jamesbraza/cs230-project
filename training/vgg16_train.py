@@ -4,7 +4,12 @@ from typing import Iterable, List, Optional, Tuple
 import numpy as np
 import tensorflow as tf
 
-from data.dataset_utils import get_dataset, get_num_classes
+from data.dataset_utils import (
+    FULL_SMALL_LABEL_OVERLAP,
+    SMALL_DATASET_LABELS,
+    get_dataset,
+    get_num_classes,
+)
 from models.vgg16 import VGG_IMAGE_SIZE, make_tl_model
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
@@ -44,7 +49,14 @@ def make_vgg_preprocessing_generator(
 
 
 # 1. Prepare the training data
-train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+small_train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+full_train_ds = get_dataset(
+    "full",
+    image_size=VGG_IMAGE_SIZE,
+    validation_split=0.0,
+    filter_labels=[x for x in FULL_SMALL_LABEL_OVERLAP if x in SMALL_DATASET_LABELS],
+)
+train_ds = small_train_ds.concatenate(full_train_ds)
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
 train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
