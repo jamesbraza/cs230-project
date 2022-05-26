@@ -68,8 +68,7 @@ if DATA_AUGMENTATION:
     train_ds.class_names = class_names  # Manually propagate
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
-if train_steps_per_epoch < 0:
-    # SEE: https://github.com/tensorflow/tensorflow/issues/44933
+if train_steps_per_epoch == tf.data.experimental.UNKNOWN_CARDINALITY:
     train_steps_per_epoch = None
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 if VALIDATION_STEPS is None:
