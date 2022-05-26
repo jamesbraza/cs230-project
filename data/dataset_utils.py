@@ -86,6 +86,7 @@ def get_full_dataset(
     if shuffle:
         dataset = dataset.shuffle(100, seed=seed, reshuffle_each_iteration=False)
 
+    # SEE: https://stackoverflow.com/a/58452268/11163122
     validation_split_decimal = int(validation_split * 10)
     if validation_split_decimal != validation_split * 10:
         raise ValueError(
@@ -102,6 +103,31 @@ def get_full_dataset(
     val_ds = dataset.enumerate().filter(is_val).map(recover).batch(batch_size)
     val_ds.class_names = list(class_name_to_label.keys())
     return train_ds, val_ds
+
+
+SMALL_DATASET_LABELS: List[str] = os.listdir(SMALL_TRAIN_ABS_PATH)
+FULL_SMALL_LABEL_OVERLAP: List[str] = [
+    "undershirt",
+    "hat",
+    "polo",
+    "shirt",
+    "dress",
+    "top",
+    "blouse",
+    "body",
+    "longsleeve",
+    "hoodie",
+    "shoes",
+    "skip",
+    "outwear",
+    "skirt",
+    "not sure",
+    "t-shirt",
+    "other",
+    "shorts",
+    "pants",
+    "blazer",
+]
 
 
 def get_dataset(
