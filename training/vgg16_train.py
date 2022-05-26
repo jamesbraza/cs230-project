@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from data.dataset_utils import (
-    FULL_SMALL_LABEL_OVERLAP,
+    FULL_SMALL_LABELS,
     SMALL_DATASET_LABELS,
     get_dataset,
     get_num_classes,
@@ -54,11 +54,19 @@ full_train_ds, _, _ = get_dataset(
     "full",
     image_size=VGG_IMAGE_SIZE,
     validation_split=0.0,
-    filter_labels=[x for x in FULL_SMALL_LABEL_OVERLAP if x in SMALL_DATASET_LABELS],
+    filter_labels={
+        x: SMALL_DATASET_LABELS.index(x)
+        for x in FULL_SMALL_LABELS
+        if x in SMALL_DATASET_LABELS
+    },
 )
 train_ds = small_train_ds.concatenate(full_train_ds)
+train_ds.class_names = small_train_ds.class_names  # Manually propagate
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
-train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
+train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
+if train_steps_per_epoch < 0:
+    # SEE: https://github.com/tensorflow/tensorflow/issues/44933
+    train_steps_per_epoch = None
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 if VALIDATION_STEPS is None:
     val_steps_per_epoch: int = val_ds.cardinality().numpy()

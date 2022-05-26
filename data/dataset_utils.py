@@ -17,7 +17,7 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
 SMALL_DATASET_LABELS: List[str] = os.listdir(SMALL_TRAIN_ABS_PATH)
-FULL_SMALL_LABEL_OVERLAP: List[str] = [
+FULL_SMALL_LABELS: List[str] = [
     "undershirt",
     "hat",
     "polo",
