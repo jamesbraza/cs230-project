@@ -21,6 +21,8 @@ ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
+# If you want to mix in the full clothing dataset
+DATA_AUGMENTATION = True
 
 
 def make_vgg_preprocessing_generator(
@@ -49,19 +51,21 @@ def make_vgg_preprocessing_generator(
 
 
 # 1. Prepare the training data
-small_train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
-full_train_ds, _, _ = get_dataset(
-    "full",
-    image_size=VGG_IMAGE_SIZE,
-    validation_split=0.0,
-    filter_labels={
-        x: SMALL_DATASET_LABELS.index(x)
-        for x in FULL_SMALL_LABELS
-        if x in SMALL_DATASET_LABELS
-    },
-)
-train_ds = small_train_ds.concatenate(full_train_ds)
-train_ds.class_names = small_train_ds.class_names  # Manually propagate
+train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+if DATA_AUGMENTATION:
+    full_train_ds, _, _ = get_dataset(
+        "full",
+        image_size=VGG_IMAGE_SIZE,
+        validation_split=0.0,
+        filter_labels={
+            x: SMALL_DATASET_LABELS.index(x)
+            for x in FULL_SMALL_LABELS
+            if x in SMALL_DATASET_LABELS
+        },
+    )
+    class_names = train_ds.class_names
+    train_ds = train_ds.concatenate(full_train_ds)
+    train_ds.class_names = class_names  # Manually propagate
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
 if train_steps_per_epoch < 0:
