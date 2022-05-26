@@ -52,6 +52,7 @@ def make_vgg_preprocessing_generator(
 
 # 1. Prepare the training data
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
 if DATA_AUGMENTATION:
     full_train_ds, _, _ = get_dataset(
         "full",
@@ -65,11 +66,10 @@ if DATA_AUGMENTATION:
     )
     class_names = train_ds.class_names
     train_ds = train_ds.concatenate(full_train_ds)
-    train_ds.class_names = class_names  # Manually propagate
+    train_ds.class_names = class_names  # Manually propagate class_names
+    if train_ds.cardinality().numpy() == tf.data.experimental.UNKNOWN_CARDINALITY:
+        train_steps_per_epoch += 141  # TODO: don't hard code this
 train_data_generator = make_vgg_preprocessing_generator(train_ds)
-train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
-if train_steps_per_epoch == tf.data.experimental.UNKNOWN_CARDINALITY:
-    train_steps_per_epoch = None
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 if VALIDATION_STEPS is None:
     val_steps_per_epoch: int = val_ds.cardinality().numpy()
