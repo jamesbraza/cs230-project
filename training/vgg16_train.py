@@ -50,7 +50,7 @@ def make_vgg_preprocessing_generator(
 
 # 1. Prepare the training data
 small_train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
-full_train_ds = get_dataset(
+full_train_ds, _, _ = get_dataset(
     "full",
     image_size=VGG_IMAGE_SIZE,
     validation_split=0.0,
