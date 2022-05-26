@@ -72,8 +72,10 @@ def get_full_dataset(
     dataset = tf.data.Dataset.from_tensor_slices(
         (
             tf.constant(valid_data["image"], dtype=tf.string),
+            # Use tf.int32 (even though we could use tf.uint8) to match
+            # behavior of image_dataset_from_directory
             tf.constant(
-                valid_data["label"].map(class_name_to_label.__getitem__), dtype=tf.uint8
+                valid_data["label"].map(class_name_to_label.__getitem__), dtype=tf.int32
             ),
         )
     )
