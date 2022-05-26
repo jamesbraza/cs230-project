@@ -1,7 +1,6 @@
 import os
 from collections.abc import Mapping as MappingCollection
-from contextlib import contextmanager
-from typing import Iterator, List, Literal, Mapping, Optional, Sequence, Tuple, Union
+from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 import tensorflow as tf
@@ -187,9 +186,9 @@ def get_num_classes(dataset: tf.data.Dataset) -> int:
     return len(dataset.class_names)
 
 
-@contextmanager
-def preserve_class_names(dataset: tf.data.Dataset) -> Iterator[None]:
-    """Store dataset.class_names temporarily and re-set during cleanup."""
-    class_names = dataset.class_names
-    yield
-    dataset.class_names = class_names
+def pass_class_names(
+    orig_dataset: tf.data.Dataset, new_dataset: tf.data.Dataset
+) -> tf.data.Dataset:
+    """Pass the class_names on from one dataset to another."""
+    new_dataset.class_names = orig_dataset.class_names
+    return new_dataset
