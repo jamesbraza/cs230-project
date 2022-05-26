@@ -1,6 +1,7 @@
 import os
 from collections.abc import Mapping as MappingCollection
-from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
+from contextlib import contextmanager
+from typing import Iterator, List, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 import tensorflow as tf
@@ -184,3 +185,11 @@ def get_dataset(
 def get_num_classes(dataset: tf.data.Dataset) -> int:
     """Get the number of classes within a dataset."""
     return len(dataset.class_names)
+
+
+@contextmanager
+def preserve_class_names(dataset: tf.data.Dataset) -> Iterator[None]:
+    """Store dataset.class_names temporarily and re-set during cleanup."""
+    class_names = dataset.class_names
+    yield
+    dataset.class_names = class_names
