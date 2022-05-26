@@ -49,6 +49,7 @@ def get_full_dataset(  # noqa: C901
     shuffle: bool = True,
     seed: Optional[int] = None,
     validation_split: float = 0.1,
+    drop_remainder: bool = False,
     filter_labels: Optional[Union[Sequence[str], Mapping[str, int]]] = None,
 ) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     """
@@ -60,6 +61,7 @@ def get_full_dataset(  # noqa: C901
         shuffle: If you want to shuffle the dataset.
         seed: Optional seed for shuffling.
         validation_split: Split in [0, 1] for validation data.
+        drop_remainder: If you want to drop the last batch's incomplete set.
         filter_labels: Optional allow list of labels or allow mapping.
             If Sequence: use as a lookup of allowable labels.
             If Mapping: use as a lookup of allowable labels and use that label.
@@ -127,9 +129,19 @@ def get_full_dataset(  # noqa: C901
 
     is_train = lambda x, y: not is_val(x, y)  # noqa: E731
     recover = lambda _, y: y  # noqa: E731
-    train_ds = dataset.enumerate().filter(is_train).map(recover).batch(batch_size)
+    train_ds = (
+        dataset.enumerate()
+        .filter(is_train)
+        .map(recover)
+        .batch(batch_size, drop_remainder)
+    )
     train_ds.class_names = list(class_name_to_label.keys())
-    val_ds = dataset.enumerate().filter(is_val).map(recover).batch(batch_size)
+    val_ds = (
+        dataset.enumerate()
+        .filter(is_val)
+        .map(recover)
+        .batch(batch_size, drop_remainder)
+    )
     val_ds.class_names = list(class_name_to_label.keys())
     return train_ds, val_ds
 
