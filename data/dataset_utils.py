@@ -16,7 +16,7 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
-SMALL_DATASET_LABELS: List[str] = os.listdir(SMALL_TRAIN_ABS_PATH)
+SMALL_DATASET_LABELS: List[str] = sorted(os.listdir(SMALL_TRAIN_ABS_PATH))
 FULL_SMALL_LABELS: List[str] = [
     "undershirt",
     "hat",
@@ -64,7 +64,7 @@ def get_full_dataset(  # noqa: C901
             If Sequence: use as a lookup of allowable labels.
             If Mapping: use as a lookup of allowable labels and use that label.
                 This enables one to have consistent labels within an augmented
-                 dataset.
+                dataset.
 
     Returns:
         BatchDatasets of training and validation data.
@@ -86,16 +86,16 @@ def get_full_dataset(  # noqa: C901
                     label = label.lower()
                     if label not in filter_labels:
                         continue
-                    if isinstance(filter_labels, MappingCollection):
-                        # Update the label per the mapping
-                        label = filter_labels[label]
                 valid_data_pre.append((image_path, label))
         except FileNotFoundError:
             pass
     valid_data = pd.DataFrame(valid_data_pre, columns=["image", "label"])
-    class_name_to_label: Dict[str, int] = {
-        label: i for i, label in enumerate(set(valid_data["label"]))
-    }
+    if isinstance(filter_labels, MappingCollection):
+        class_name_to_label: Mapping[str, int] = filter_labels
+    else:
+        class_name_to_label = {
+            label: i for i, label in enumerate(set(valid_data["label"]))
+        }
     dataset = tf.data.Dataset.from_tensor_slices(
         (
             tf.constant(valid_data["image"], dtype=tf.string),
