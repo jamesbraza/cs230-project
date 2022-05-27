@@ -1,11 +1,13 @@
 import collections
 import os
-from typing import DefaultDict, Dict, List, Tuple
+from typing import DefaultDict, Dict, List, Optional, Sequence, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
-from data.dataset_utils import get_dataset
+from data.dataset_utils import SMALL_DATASET_LABELS, get_dataset
 from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
 from training.utils import (
@@ -50,6 +52,26 @@ def get_dataset_predict_stats(
     }
 
 
+def get_confusion_matrix(
+    trained_model: tf.keras.Model, dataset: tf.data.Dataset
+) -> np.ndarray:
+    """Get a confusion matrix from a trained model and input dataset."""
+    labels_preds: List[Tuple[int, int]] = []
+    for images, labels in dataset.unbatch():
+        preds: np.ndarray = trained_model.predict(tf.expand_dims(images, axis=0))
+        pred: int = np.argmax(np.squeeze(preds))
+        labels_preds.append((int(labels), pred))
+    return confusion_matrix(*zip(*labels_preds))
+
+
+def plot_confusion_matrix(
+    cm: np.ndarray, display_labels: Optional[Sequence[str]] = None
+) -> None:
+    """Plot a confusion matrix optionally with labels to display."""
+    disp = ConfusionMatrixDisplay(cm, display_labels=display_labels)
+    disp.plot(xticks_rotation="vertical")
+
+
 def get_dataset_accuracy(
     stats: Statistics,
 ) -> Tuple[float, int, Dict[Tuple[int, str], float]]:
@@ -91,4 +113,7 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in [
         f"{ds_name} set accuracy: {ds_accuracy * 100:.2f}% correct "
         f"of {ds_total} images: {readable_ds_per_label}."
     )
+conf_matrix = get_confusion_matrix(model, test_ds)
+plot_confusion_matrix(conf_matrix, SMALL_DATASET_LABELS)
+plt.show()
 _ = 0  # Debug here
