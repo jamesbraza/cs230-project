@@ -1,4 +1,4 @@
-# Training files
-checkpoints
-logs
-models
+# Directories housing generated training files
+checkpoints/
+logs/
+models/
