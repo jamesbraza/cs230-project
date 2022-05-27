@@ -17,7 +17,7 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
 SMALL_DATASET_LABELS: List[str] = sorted(os.listdir(SMALL_TRAIN_ABS_PATH))
-FULL_SMALL_LABELS: List[str] = [
+FULL_DATASET_LABELS: List[str] = [
     "undershirt",
     "hat",
     "polo",
@@ -192,3 +192,22 @@ def pass_class_names(
     """Pass the class_names on from one dataset to another."""
     new_dataset.class_names = orig_dataset.class_names
     return new_dataset
+
+
+def get_label_overlap(
+    match_ds_labels: Sequence[str], other_ds_labels: Sequence[str]
+) -> Mapping[str, int]:
+    """
+    Get labels overlapping with a match dataset with the label index to apply.
+
+    Args:
+        match_ds_labels: Labels of the dataset we want to match/concatenate to.
+        other_ds_labels: Labels of the dataset we are using for augmentation.
+
+    Returns:
+        Labels to update the "other dataset" with for concatenation with the
+        "match dataset".
+    """
+    return {
+        x: match_ds_labels.index(x) for x in other_ds_labels if x in match_ds_labels
+    }

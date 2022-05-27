@@ -9,12 +9,13 @@ import tensorflow as tf
 
 from data.dataset_utils import (
     FULL_ABS_PATH,
-    FULL_SMALL_LABELS,
+    FULL_DATASET_LABELS,
     SHIRTS_ABS_PATH,
     SMALL_DATASET_LABELS,
     SMALL_TRAIN_ABS_PATH,
     get_dataset,
     get_full_dataset,
+    get_label_overlap,
 )
 
 FULL_CSV_ABS_PATH = os.path.join(FULL_ABS_PATH, "images.csv")
@@ -70,11 +71,9 @@ def explore_small_dataset() -> None:
 def explore_full_dataset() -> None:
     train_ds, val_ds = get_full_dataset(
         validation_split=0.0,
-        filter_labels={
-            x: SMALL_DATASET_LABELS.index(x)
-            for x in FULL_SMALL_LABELS
-            if x in SMALL_DATASET_LABELS
-        },
+        filter_labels=get_label_overlap(
+            SMALL_DATASET_LABELS, other_ds_labels=FULL_DATASET_LABELS
+        ),
     )
     # train_ds, val_ds, _ = get_dataset("full")
     fig, ax = plt.subplots(nrows=3, ncols=3)
