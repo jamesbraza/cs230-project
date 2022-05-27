@@ -38,6 +38,7 @@ def vgg_preprocess_dataset(dataset: tf.data.Dataset) -> tf.data.Dataset:
 
     def _preprocess(x: tf.Tensor, y: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         pre_x = tf.keras.applications.vgg16.preprocess_input(x)
+        # pylint: disable=no-value-for-parameter
         pre_y = tf.one_hot(y, depth=num_classes)
         return pre_x, pre_y
 

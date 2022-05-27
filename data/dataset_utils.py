@@ -43,7 +43,7 @@ FULL_DATASET_LABELS: List[str] = [
 DatasetNames = Literal["small", "full", "shirts"]
 
 
-def get_full_dataset(  # noqa: C901
+def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
     batch_size: int = 32,
     image_size: Tuple[int, int] = (256, 256),
     shuffle: bool = True,

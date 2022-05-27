@@ -31,6 +31,7 @@ disable = [
     "no-self-use",  # Don't care to enforce this
     "unused-variable",  # Don't care to enforce this
     "invalid-name",  # Don't care to enforce this
+    "duplicate-code",  # Don't care to enforce this
 ]
 
 # Enable the message, report, category or checker with the given id(s).
