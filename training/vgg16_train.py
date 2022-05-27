@@ -1,18 +1,13 @@
 import os
-from typing import Iterable, List, Optional, Tuple
+from typing import List, Optional
 
-import numpy as np
 import tensorflow as tf
 
-from data.dataset_utils import (
-    FULL_SMALL_LABELS,
-    SMALL_DATASET_LABELS,
-    get_dataset,
-    get_num_classes,
-)
+from data.dataset_utils import get_dataset, get_num_classes
 from models.vgg16 import VGG_IMAGE_SIZE, make_tl_model
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
+from training.vgg16_utils import vgg_preprocess_dataset
 
 # Num epochs if not early stopped
 MAX_NUM_EPOCHS = 64
@@ -21,57 +16,13 @@ ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
-# If you want to mix in the full clothing dataset
-DATA_AUGMENTATION = True
-
-
-def make_vgg_preprocessing_generator(
-    dataset: tf.data.Dataset, num_repeat: int = -1, preprocess_image: bool = False
-) -> Iterable[Tuple[tf.Tensor, np.ndarray]]:
-    """
-    Make an iterator that pre-processes a dataset for VGGNet training.
-
-    Args:
-        dataset: TensorFlow dataset to preprocess.
-        num_repeat: Optional count of dataset repetitions.
-            Default of -1 will repeat indefinitely.
-            For training data: set to the number of epochs, or -1.
-        preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
-            Default is False because this is built into the model.
-
-    Returns:
-        Iterable of (image, categorical label) tuples.
-    """
-    num_classes = get_num_classes(dataset)
-    for batch_images, batch_labels in dataset.repeat(num_repeat):
-        if preprocess_image:
-            batch_images = tf.keras.applications.vgg16.preprocess_input(batch_images)
-        yield batch_images, tf.keras.utils.to_categorical(
-            batch_labels, num_classes, dtype="bool"
-        )
 
 
 # 1. Prepare the training data
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+train_ds = vgg_preprocess_dataset(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
-if DATA_AUGMENTATION:
-    full_train_ds, _, _ = get_dataset(
-        "full",
-        image_size=VGG_IMAGE_SIZE,
-        validation_split=0.0,
-        filter_labels={
-            x: SMALL_DATASET_LABELS.index(x)
-            for x in FULL_SMALL_LABELS
-            if x in SMALL_DATASET_LABELS
-        },
-    )
-    class_names = train_ds.class_names
-    train_ds = train_ds.concatenate(full_train_ds)
-    train_ds.class_names = class_names  # Manually propagate class_names
-    if train_ds.cardinality().numpy() == tf.data.experimental.UNKNOWN_CARDINALITY:
-        train_steps_per_epoch += 141  # TODO: don't hard code this
-train_data_generator = make_vgg_preprocessing_generator(train_ds)
-val_data_generator = make_vgg_preprocessing_generator(val_ds)
+val_ds = vgg_preprocess_dataset(val_ds)
 if VALIDATION_STEPS is None:
     val_steps_per_epoch: int = val_ds.cardinality().numpy()
 else:
@@ -100,10 +51,10 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
-    train_data_generator,
+    train_ds,
     epochs=MAX_NUM_EPOCHS,
     steps_per_epoch=train_steps_per_epoch,
-    validation_data=val_data_generator,
+    validation_data=val_ds,
     validation_steps=val_steps_per_epoch,
     callbacks=[callbacks],
 )
