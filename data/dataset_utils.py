@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Iterable, List, Literal, Optional, Tuple
+from collections.abc import Mapping as MappingCollection
+from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 import tensorflow as tf
@@ -15,16 +16,41 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
+SMALL_DATASET_LABELS: List[str] = sorted(os.listdir(SMALL_TRAIN_ABS_PATH))
+FULL_DATASET_LABELS: List[str] = [
+    "undershirt",
+    "hat",
+    "polo",
+    "shirt",
+    "dress",
+    "top",
+    "blouse",
+    "body",
+    "longsleeve",
+    "hoodie",
+    "shoes",
+    "skip",
+    "outwear",
+    "skirt",
+    "not sure",
+    "t-shirt",
+    "other",
+    "shorts",
+    "pants",
+    "blazer",
+]
+
 DatasetNames = Literal["small", "full", "shirts"]
 
 
-def get_full_dataset(
+def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
     batch_size: int = 32,
     image_size: Tuple[int, int] = (256, 256),
     shuffle: bool = True,
     seed: Optional[int] = None,
     validation_split: float = 0.1,
-    filter_labels: Optional[Iterable[str]] = None,
+    drop_remainder: bool = False,
+    filter_labels: Optional[Union[Sequence[str], Mapping[str, int]]] = None,
 ) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     """
     Convert the full clothing dataset into a tensorflow Dataset.
@@ -35,14 +61,12 @@ def get_full_dataset(
         shuffle: If you want to shuffle the dataset.
         seed: Optional seed for shuffling.
         validation_split: Split in [0, 1] for validation data.
-        filter_labels: Optional allow list of labels.
-            This is designed to enable this dataset for data augmentation.
-            valid_options = [
-                'outwear', 'longsleeve', 'shirt', 'skirt', 'body', 'skip',
-                'shoes', 'pants', 'hat', 'hoodie', 'not sure', 'top',
-                'undershirt', 'dress', 'blazer', 'blouse', 't-shirt', 'other',
-                'shorts', 'polo'
-            ]
+        drop_remainder: If you want to drop the last batch's incomplete set.
+        filter_labels: Optional allow list of labels or allow mapping.
+            If Sequence: use as a lookup of allowable labels.
+            If Mapping: use as a lookup of allowable labels and use that label.
+                This enables one to have consistent labels within an augmented
+                dataset.
 
     Returns:
         BatchDatasets of training and validation data.
@@ -60,20 +84,27 @@ def get_full_dataset(
                 # SEE: https://keras.io/examples/vision/image_classification_from_scratch/
                 if not tf.compat.as_bytes("JFIF") in fobj.peek(10):
                     continue
-                if filter_labels is not None and label.lower() not in filter_labels:
-                    continue
-                valid_data_pre.append((image_path, label.lower()))
+                if filter_labels is not None:
+                    label = label.lower()
+                    if label not in filter_labels:
+                        continue
+                valid_data_pre.append((image_path, label))
         except FileNotFoundError:
             pass
     valid_data = pd.DataFrame(valid_data_pre, columns=["image", "label"])
-    class_name_to_label: Dict[str, int] = {
-        label: i for i, label in enumerate(set(valid_data["label"]))
-    }
+    if isinstance(filter_labels, MappingCollection):
+        class_name_to_label: Mapping[str, int] = filter_labels
+    else:
+        class_name_to_label = {
+            label: i for i, label in enumerate(set(valid_data["label"]))
+        }
     dataset = tf.data.Dataset.from_tensor_slices(
         (
             tf.constant(valid_data["image"], dtype=tf.string),
+            # Use tf.int32 (even though we could use tf.uint8) to match
+            # behavior of image_dataset_from_directory
             tf.constant(
-                valid_data["label"].map(class_name_to_label.__getitem__), dtype=tf.uint8
+                valid_data["label"].map(class_name_to_label.__getitem__), dtype=tf.int32
             ),
         )
     )
@@ -86,6 +117,7 @@ def get_full_dataset(
     if shuffle:
         dataset = dataset.shuffle(100, seed=seed, reshuffle_each_iteration=False)
 
+    # SEE: https://stackoverflow.com/a/58452268/11163122
     validation_split_decimal = int(validation_split * 10)
     if validation_split_decimal != validation_split * 10:
         raise ValueError(
@@ -97,9 +129,19 @@ def get_full_dataset(
 
     is_train = lambda x, y: not is_val(x, y)  # noqa: E731
     recover = lambda _, y: y  # noqa: E731
-    train_ds = dataset.enumerate().filter(is_train).map(recover).batch(batch_size)
+    train_ds = (
+        dataset.enumerate()
+        .filter(is_train)
+        .map(recover)
+        .batch(batch_size, drop_remainder)
+    )
     train_ds.class_names = list(class_name_to_label.keys())
-    val_ds = dataset.enumerate().filter(is_val).map(recover).batch(batch_size)
+    val_ds = (
+        dataset.enumerate()
+        .filter(is_val)
+        .map(recover)
+        .batch(batch_size, drop_remainder)
+    )
     val_ds.class_names = list(class_name_to_label.keys())
     return train_ds, val_ds
 
@@ -142,3 +184,30 @@ def get_dataset(
 def get_num_classes(dataset: tf.data.Dataset) -> int:
     """Get the number of classes within a dataset."""
     return len(dataset.class_names)
+
+
+def pass_class_names(
+    orig_dataset: tf.data.Dataset, new_dataset: tf.data.Dataset
+) -> tf.data.Dataset:
+    """Pass the class_names on from one dataset to another."""
+    new_dataset.class_names = orig_dataset.class_names
+    return new_dataset
+
+
+def get_label_overlap(
+    match_ds_labels: Sequence[str], other_ds_labels: Sequence[str]
+) -> Mapping[str, int]:
+    """
+    Get labels overlapping with a match dataset with the label index to apply.
+
+    Args:
+        match_ds_labels: Labels of the dataset we want to match/concatenate to.
+        other_ds_labels: Labels of the dataset we are using for augmentation.
+
+    Returns:
+        Labels to update the "other dataset" with for concatenation with the
+        "match dataset".
+    """
+    return {
+        x: match_ds_labels.index(x) for x in other_ds_labels if x in match_ds_labels
+    }
