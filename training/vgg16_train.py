@@ -27,7 +27,7 @@ VALIDATION_STEPS: Optional[int] = None
 DATA_AUGMENTATION = True
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
-LAST_CHECKPOINT: Optional[str] = "2022-05-27T02_49_05.934322--19--0.04.hdf5"
+LAST_CHECKPOINT: Optional[str] = None
 
 
 # 1. Prepare the training data
