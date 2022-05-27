@@ -66,7 +66,7 @@ ckpt_filename = os.path.join(
     "%s--{epoch:02d}--{loss:.2f}.hdf5" % current_ts,
 )
 if LAST_CHECKPOINT is not None:  # Recover from checkpoint
-    model.load_weights(LAST_CHECKPOINT)
+    model.load_weights(os.path.join(CKPTS_DIR_ABS_PATH, LAST_CHECKPOINT))
 callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
     tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=True),
