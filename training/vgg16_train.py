@@ -25,6 +25,9 @@ ES_PATIENCE_EPOCHS = 8
 VALIDATION_STEPS: Optional[int] = None
 # If you want to mix in the full clothing dataset
 DATA_AUGMENTATION = True
+# Set to the last checkpoint if you want to resume training,
+# or leave as None to begin anew
+LAST_CHECKPOINT: Optional[str] = None
 
 
 # 1. Prepare the training data
@@ -58,10 +61,15 @@ model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accur
 
 # 3. Perform the actual training
 current_ts = get_ts_now_as_str()
+checkpoint_delim = "--"
 ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
-    "%s--{epoch:02d}--{loss:.2f}.hdf5" % current_ts,
+    checkpoint_delim.join(["%s", "{epoch:02d}", "{loss:.2f}.hdf5"]) % current_ts,
 )
+initial_epoch: int = 0
+if LAST_CHECKPOINT is not None:  # Recover from checkpoint
+    initial_epoch = int(LAST_CHECKPOINT.split(checkpoint_delim)[1])
+    model.load_weights(os.path.join(CKPTS_DIR_ABS_PATH, LAST_CHECKPOINT))
 callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
     tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=True),
@@ -75,6 +83,7 @@ callbacks: List[tf.keras.callbacks.Callback] = [
 history: tf.keras.callbacks.History = model.fit(
     train_ds,
     epochs=MAX_NUM_EPOCHS,
+    initial_epoch=initial_epoch,
     steps_per_epoch=train_steps_per_epoch,
     validation_data=val_ds,
     validation_steps=val_steps_per_epoch,
