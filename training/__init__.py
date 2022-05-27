@@ -1,5 +1,5 @@
-import os
+import os.path
 
-LOG_DIR_ABS_PATH = os.path.join(os.getcwd(), "logs")
-CKPTS_DIR_ABS_PATH = os.path.join(os.getcwd(), "checkpoints")
-MODELS_DIR_ABS_PATH = os.path.join(os.getcwd(), "models")
+LOG_DIR_ABS_PATH = os.path.join(__file__, "logs")
+CKPTS_DIR_ABS_PATH = os.path.join(__file__, "checkpoints")
+MODELS_DIR_ABS_PATH = os.path.join(__file__, "models")
