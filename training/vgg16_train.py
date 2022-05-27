@@ -25,6 +25,9 @@ ES_PATIENCE_EPOCHS = 8
 VALIDATION_STEPS: Optional[int] = None
 # If you want to mix in the full clothing dataset
 DATA_AUGMENTATION = True
+# Set to the last checkpoint if you want to resume training,
+# or leave as None to begin anew
+LAST_CHECKPOINT: Optional[str] = "2022-05-27T02_49_05.934322--19--0.04.hdf5"
 
 
 # 1. Prepare the training data
@@ -62,6 +65,8 @@ ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
     "%s--{epoch:02d}--{loss:.2f}.hdf5" % current_ts,
 )
+if LAST_CHECKPOINT is not None:  # Recover from checkpoint
+    model.load_weights(LAST_CHECKPOINT)
 callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
     tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=True),
