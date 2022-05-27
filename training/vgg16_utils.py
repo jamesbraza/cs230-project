@@ -32,14 +32,26 @@ def make_vgg_preprocessing_generator(
         )
 
 
-def vgg_preprocess_dataset(dataset: tf.data.Dataset) -> tf.data.Dataset:
-    """Preprocess the input dataset for a VGG16 network."""
+def vgg_preprocess_dataset(
+    dataset: tf.data.Dataset, preprocess_image: bool = False
+) -> tf.data.Dataset:
+    """
+    Preprocess the input dataset for a VGG16 network.
+
+    Args:
+        dataset: TensorFlow dataset to preprocess.
+        preprocess_image: Set True to pre-process the image per VGG16's preprocessor.
+            Default is False because this is built into the model.
+
+    Returns:
+        Preprocessed dataset.
+    """
     num_classes = get_num_classes(dataset)
 
     def _preprocess(x: tf.Tensor, y: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        pre_x = tf.keras.applications.vgg16.preprocess_input(x)
+        if preprocess_image:
+            x = tf.keras.applications.vgg16.preprocess_input(x)
         # pylint: disable=no-value-for-parameter
-        pre_y = tf.one_hot(y, depth=num_classes)
-        return pre_x, pre_y
+        return x, tf.one_hot(y, depth=num_classes)
 
     return pass_class_names(dataset, dataset.map(_preprocess))
