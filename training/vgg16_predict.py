@@ -1,11 +1,16 @@
 import collections
+import functools
 import os
 from typing import DefaultDict, Dict, List, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    classification_report,
+    confusion_matrix,
+)
 
 from data.dataset_utils import SMALL_DATASET_LABELS, get_dataset
 from models.vgg16 import VGG_IMAGE_SIZE
@@ -52,16 +57,24 @@ def get_dataset_predict_stats(
     }
 
 
-def get_confusion_matrix(
+@functools.lru_cache(5)
+def _get_labels_preds(
     trained_model: tf.keras.Model, dataset: tf.data.Dataset
-) -> np.ndarray:
-    """Get a confusion matrix from a trained model and input dataset."""
+) -> List[Tuple[int, int]]:
+    """Get a pairing of label-to-pred for an entire dataset."""
     labels_preds: List[Tuple[int, int]] = []
     for images, labels in dataset.unbatch():
         preds: np.ndarray = trained_model.predict(tf.expand_dims(images, axis=0))
         pred: int = np.argmax(np.squeeze(preds))
         labels_preds.append((int(labels), pred))
-    return confusion_matrix(*zip(*labels_preds))
+    return labels_preds
+
+
+def get_confusion_matrix(
+    trained_model: tf.keras.Model, dataset: tf.data.Dataset
+) -> np.ndarray:
+    """Get a confusion matrix from a trained model and input dataset."""
+    return confusion_matrix(*zip(*_get_labels_preds(trained_model, dataset)))
 
 
 def plot_confusion_matrix(
@@ -70,6 +83,20 @@ def plot_confusion_matrix(
     """Plot a confusion matrix optionally with labels to display."""
     disp = ConfusionMatrixDisplay(cm, display_labels=display_labels)
     disp.plot(xticks_rotation="vertical")
+
+
+def get_classification_report(
+    trained_model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    display_labels: Optional[Sequence[str]] = None,
+    output_dict: bool = True,
+) -> Dict:
+    """Get a classification report (precision, recall, F1 score) using sklearn."""
+    return classification_report(
+        *zip(*_get_labels_preds(trained_model, dataset)),
+        target_names=display_labels,
+        output_dict=output_dict,
+    )
 
 
 def get_dataset_accuracy(
