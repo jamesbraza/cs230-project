@@ -34,7 +34,6 @@ LAST_CHECKPOINT: Optional[str] = None
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
 train_ds = vgg_preprocess_dataset(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
-val_ds = vgg_preprocess_dataset(val_ds)
 if DATA_AUGMENTATION:
     full_train_ds, _, _ = get_dataset(
         "full",
@@ -48,10 +47,14 @@ if DATA_AUGMENTATION:
     train_ds = pass_class_names(train_ds, train_ds.concatenate(full_train_ds))
     if train_ds.cardinality().numpy() == tf.data.experimental.UNKNOWN_CARDINALITY:
         train_steps_per_epoch = None
+val_ds = vgg_preprocess_dataset(val_ds)
 if VALIDATION_STEPS is None:
     val_steps_per_epoch: int = val_ds.cardinality().numpy()
 else:
     val_steps_per_epoch = VALIDATION_STEPS
+# Pre-fetch batches so the GPU has minimal downtime
+train_ds = pass_class_names(train_ds, train_ds.prefetch(tf.data.AUTOTUNE))
+val_ds = pass_class_names(val_ds, val_ds.prefetch(tf.data.AUTOTUNE))
 
 # 2. Create and compile the model
 model = make_tl_model(
