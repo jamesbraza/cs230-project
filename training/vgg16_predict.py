@@ -89,13 +89,10 @@ def get_classification_report(
     trained_model: tf.keras.Model,
     dataset: tf.data.Dataset,
     display_labels: Optional[Sequence[str]] = None,
-    output_dict: bool = True,
-) -> Dict:
+) -> str:
     """Get a classification report (precision, recall, F1 score) using sklearn."""
     return classification_report(
-        *zip(*_get_labels_preds(trained_model, dataset)),
-        target_names=display_labels,
-        output_dict=output_dict,
+        *zip(*_get_labels_preds(trained_model, dataset)), target_names=display_labels
     )
 
 
