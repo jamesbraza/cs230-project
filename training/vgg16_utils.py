@@ -51,6 +51,8 @@ def vgg_preprocess_dataset(
     def _preprocess(x: tf.Tensor, y: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         if preprocess_image:
             x = tf.keras.applications.vgg16.preprocess_input(x)
+        # NOTE: one_hot is a transformation step for Tensors, so we use it here
+        # over to_categorical
         # pylint: disable=no-value-for-parameter
         return x, tf.one_hot(y, depth=num_classes)
 
