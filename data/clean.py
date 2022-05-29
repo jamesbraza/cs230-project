@@ -6,7 +6,7 @@ from typing import List
 import tensorflow as tf
 from PIL import Image
 
-JPEG = "JPEG"
+JPEG = "JPEG"  # For both .jpg and .jpeg
 
 
 def is_valid_jfif(path: str) -> bool:
@@ -30,7 +30,13 @@ def is_valid_image(path: str, img_format: str = JPEG) -> bool:
         return im.format == img_format
 
 
-def clean_images(base_folder: str, labels: List[str], dry_run: bool = True) -> None:
+def clean_images(
+    base_folder: str,
+    labels: List[str],
+    dry_run: bool = True,
+    pil_check: bool = True,
+    tensorflow_check: bool = False,
+) -> None:
     """
     Clean out all corrupted JPEG images from a directory.
 
@@ -38,6 +44,9 @@ def clean_images(base_folder: str, labels: List[str], dry_run: bool = True) -> N
         base_folder: Base directory housing subdirectories of images.
         labels: Subdirectory names corresponding with labels
         dry_run: If you don't actually want to delete the images.
+        pil_check: If you want to clean per PIL.Image's suggestion
+        tensorflow_check: If you want to clean per tensorflow's suggestion.
+            This is worse, hence why it's default is False.
     """
     for label in labels:
         folder_path = os.path.join(base_folder, label)
@@ -46,19 +55,13 @@ def clean_images(base_folder: str, labels: List[str], dry_run: bool = True) -> N
             if not os.path.isfile(fpath):
                 continue
             if not is_valid_image(fpath):
-                _ = 0
-            if not is_valid_jfif(fpath):
-                print(f"Corrupted image: {fpath}")
+                print(f"Corrupted image per PIL: {fpath}")
                 if not dry_run:
                     os.remove(fpath)
-
-            with Image.open(fpath) as im:
-                try:
-                    im.verify()
-                except Exception as exc:
-                    _ = 0
-                _ = 0
-            _ = 0
+            if not is_valid_jfif(fpath):
+                print(f"Corrupted image per tensorflow: {fpath}")
+                if not dry_run:
+                    os.remove(fpath)
 
 
 if __name__ == "__main__":
