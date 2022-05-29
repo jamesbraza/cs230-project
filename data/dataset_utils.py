@@ -5,7 +5,7 @@ from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
 import pandas as pd
 import tensorflow as tf
 
-from data.clean import is_valid_image, is_valid_jfif
+from data.clean import is_valid_image
 
 DATA_DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 

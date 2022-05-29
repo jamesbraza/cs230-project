@@ -32,14 +32,14 @@ ES_PATIENCE_EPOCHS = 8
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
 # If you want to mix in the full clothing dataset
-DATA_AUGMENTATION = True
+DATA_AUGMENTATION = False
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
 SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
