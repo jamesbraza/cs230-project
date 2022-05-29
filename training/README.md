@@ -63,4 +63,19 @@ pyenv local 3.10.4  # Or whatever version was installed
 
 Then I followed the instructions in the repo root's `README.md`.
 
+#### vCPU Verification
+
+Some of these commands were taken from
+[How to Display the Number of Processors (vCPU) on Linux VPS][2]:
+
+```bash
+# Number of vCPUs
+cat /proc/cpuinfo | grep processor | wc -l
+# Number of cores per vCPU
+cat /proc/cpuinfo | grep cpu\ cores | uniq
+# Info on the GPU
+nvidia-smi --list-gpus
+```
+
 [1]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/create-key-pairs.html#having-ec2-create-your-key-pair
+[2]: https://webhostinggeeks.com/howto/how-to-display-the-number-of-processors-vcpu-on-linux-vps/
