@@ -81,7 +81,8 @@ module = [
     "matplotlib.*",
     "numpy",
     "pandas",
-    "tensorflow",
+    "sklearn.*",
+    "tensorflow.*",
 ]
 
 # Suppresses error messages about imports that cannot be resolved.
