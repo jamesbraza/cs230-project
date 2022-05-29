@@ -64,7 +64,10 @@ def clean_images(
                     if not dry_run:
                         os.remove(fpath)
             except FileNotFoundError:
-                pass  # If not dry_run and prior step removed
+                print(
+                    f"Can't check image {fpath} per tensorflow since it was "
+                    f"removed after PIL check."
+                )
 
 
 if __name__ == "__main__":
