@@ -54,14 +54,20 @@ def clean_images(
             fpath = os.path.join(folder_path, fname)
             if not os.path.isfile(fpath):
                 continue
-            if not is_valid_image(fpath):
+            if pil_check and not is_valid_image(fpath):
                 print(f"Corrupted image per PIL: {fpath}")
                 if not dry_run:
                     os.remove(fpath)
-            if not is_valid_jfif(fpath):
-                print(f"Corrupted image per tensorflow: {fpath}")
-                if not dry_run:
-                    os.remove(fpath)
+            try:
+                if tensorflow_check and not is_valid_jfif(fpath):
+                    print(f"Corrupted image per tensorflow: {fpath}")
+                    if not dry_run:
+                        os.remove(fpath)
+            except FileNotFoundError:
+                print(
+                    f"Can't check image {fpath} per tensorflow since it was "
+                    f"removed after PIL check."
+                )
 
 
 if __name__ == "__main__":
