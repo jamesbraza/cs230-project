@@ -10,6 +10,7 @@ from data.dataset_utils import (
     get_label_overlap,
     pass_class_names,
 )
+from models.resnet import RESNET_IMAGE_SIZE, make_resnet_model
 from models.vgg16 import VGG_IMAGE_SIZE, VGG_TOP_FC_UNITS, TopFCUnits, make_tl_model
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str, preprocess_dataset
@@ -27,7 +28,7 @@ DATA_AUGMENTATION = True
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Which model to train
-MODEL: Literal["vgg16"] = "vgg16"
+MODEL: Literal["vgg16", "resnet"] = "vgg16"
 
 if MODEL == "vgg16":
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
@@ -36,6 +37,10 @@ if MODEL == "vgg16":
         *VGG_TOP_FC_UNITS[:-1],
         len(SMALL_DATASET_LABELS),
     )
+elif MODEL == "resnet":
+    image_size = RESNET_IMAGE_SIZE
+    model_factory = make_resnet_model
+    top_fc_units = len(SMALL_DATASET_LABELS)
 else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
