@@ -5,7 +5,7 @@ from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
 import pandas as pd
 import tensorflow as tf
 
-from data.clean import is_valid_jfif
+from data.clean import is_valid_image, is_valid_jfif
 
 DATA_DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -90,7 +90,7 @@ def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
     )
     valid_data_pre: List[Tuple[str, str]] = []
     for image_path, label in data[["image", "label"]].values:
-        if not is_valid_jfif(image_path):
+        if not is_valid_image(image_path):
             continue
         if filter_labels is not None:
             label = label.lower()
