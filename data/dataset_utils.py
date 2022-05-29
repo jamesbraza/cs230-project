@@ -5,6 +5,8 @@ from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
 import pandas as pd
 import tensorflow as tf
 
+from data.clean import is_valid_jfif
+
 DATA_DIR_ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
 SMALL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_small")
@@ -88,18 +90,14 @@ def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
     )
     valid_data_pre: List[Tuple[str, str]] = []
     for image_path, label in data[["image", "label"]].values:
-        try:
-            with open(image_path, "rb") as fobj:
-                # SEE: https://keras.io/examples/vision/image_classification_from_scratch/
-                if not tf.compat.as_bytes("JFIF") in fobj.peek(10):
-                    continue
-                if filter_labels is not None:
-                    label = label.lower()
-                    if label not in filter_labels:
-                        continue
-                valid_data_pre.append((image_path, label))
-        except FileNotFoundError:
-            pass
+        if not is_valid_jfif(image_path):
+            continue
+        if filter_labels is not None:
+            label = label.lower()
+            if label not in filter_labels:
+                continue
+        valid_data_pre.append((image_path, label))
+
     valid_data = pd.DataFrame(valid_data_pre, columns=["image", "label"])
     if isinstance(filter_labels, MappingCollection):
         class_name_to_label: Mapping[str, int] = filter_labels
