@@ -20,10 +20,10 @@ DEFAULT_DELIM: str = "--"
 DEFAULT_SAVE_NICKNAME: str = "UNNAMED"
 
 
-def get_most_recent_model(
+def get_path_to_most_recent_model(
     delim: str = DEFAULT_DELIM, models_dir: str = MODELS_DIR_ABS_PATH
 ) -> str:
-    """Get the most recent model in the input directory."""
+    """Get the most recent model's absolute path in the input directory."""
     most_recent_file: Tuple[str, Optional[datetime]] = "", None
     for file in os.listdir(models_dir):
         abs_file = os.path.join(models_dir, file)
@@ -39,12 +39,12 @@ def get_most_recent_model(
     return most_recent_file[0]
 
 
-def get_model_by_nickname(
+def get_path_to_model_by_nickname(
     nickname: str = DEFAULT_SAVE_NICKNAME,
     delim: str = DEFAULT_DELIM,
     models_dir: str = MODELS_DIR_ABS_PATH,
 ) -> str:
-    """Get a model by nickname from the input directory."""
+    """Get a model absolute path by nickname from the input directory."""
     for file in os.listdir(models_dir):
         abs_file = os.path.join(models_dir, file)
         if os.path.isdir(abs_file):

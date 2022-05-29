@@ -18,15 +18,15 @@ from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
 from training.utils import (
     ImagesLabelsPreds,
-    get_model_by_nickname,
-    get_most_recent_model,
+    get_path_to_model_by_nickname,
+    get_path_to_most_recent_model,
     plot_batch_predictions,
 )
 
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
 
 # Name of the persisted Model metadata to load
-MODEL_NAME = get_most_recent_model()
+MODEL_NAME = get_path_to_most_recent_model()
 # If you want to plot images when making predictions
 PLOT_IMAGES = False
 # Which model to train

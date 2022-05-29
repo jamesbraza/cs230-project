@@ -6,7 +6,7 @@ from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
 from models.resnet_utils import make_convolutional_block, make_identity_block
 from training import MODELS_DIR_ABS_PATH
-from training.utils import get_model_by_nickname
+from training.utils import get_path_to_model_by_nickname
 
 RESNET_IMAGE_SIZE = (224, 224)  # Channels last format
 RESNET_IMAGE_SHAPE = (*RESNET_IMAGE_SIZE, 3)  # RGB
@@ -177,7 +177,7 @@ def load_resnet_model(filepath: str, include_top: bool = True) -> tf.keras.Model
 
 if __name__ == "__main__":
     loaded_model = load_resnet_model(
-        os.path.join(MODELS_DIR_ABS_PATH, get_model_by_nickname("RESNET-TL"))
+        os.path.join(MODELS_DIR_ABS_PATH, get_path_to_model_by_nickname("RESNET-TL"))
     )
     resnet_diy_model = make_resnet_diy_model(10)
     resnet_tl_model = make_resnet_tl_model(10)

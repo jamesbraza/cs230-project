@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import tensorflow as tf
 
 from training import MODELS_DIR_ABS_PATH
-from training.utils import get_model_by_nickname
+from training.utils import get_path_to_model_by_nickname
 
 TopFCUnits = Tuple[int, ...]
 
@@ -77,7 +77,7 @@ def load_vgg_model(filepath: str, include_top: bool = True) -> tf.keras.Model:
 
 if __name__ == "__main__":
     loaded_model = load_vgg_model(
-        os.path.join(MODELS_DIR_ABS_PATH, get_model_by_nickname("BASELINE"))
+        os.path.join(MODELS_DIR_ABS_PATH, get_path_to_model_by_nickname("BASELINE"))
     )
     vgg16_tl_model = make_vgg16_tl_model((4096, 4096, 10))
     _ = 0  # Debug here
