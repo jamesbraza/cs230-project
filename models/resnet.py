@@ -1,9 +1,12 @@
-from typing import NamedTuple, Tuple, TypedDict
+import os
+from typing import NamedTuple, Optional, Tuple, TypedDict
 
 import tensorflow as tf
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
 from models.resnet_utils import make_convolutional_block, make_identity_block
+from training import MODELS_DIR_ABS_PATH
+from training.utils import get_model_by_nickname
 
 RESNET_IMAGE_SIZE = (224, 224)  # Channels last format
 RESNET_IMAGE_SHAPE = (*RESNET_IMAGE_SIZE, 3)  # RGB
@@ -109,25 +112,32 @@ def make_resnet_diy_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.M
         tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
         # Last layer matches number of classes
         tf.keras.layers.Dense(
-            units=top_fc_units, name="predictions", activation="softmax"
+            units=top_fc_units, activation="softmax", name="predictions"
         ),
     ]:
         x = layer(x)
     return tf.keras.Model(inputs=x_input, outputs=x, name="diy_resnet50")
 
 
-def make_resnet_tl_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model:
+def make_resnet_tl_model(
+    top_fc_units: int = RESNET_TOP_FC_UNITS, base_model: Optional[tf.keras.Model] = None
+) -> tf.keras.Model:
     """
     Make a ResNet transfer-learned model given a number of classes and FC units.
 
     Args:
         top_fc_units: Number of units to use in the top FC layer.
             Default is one FC layer per the ResNet paper.
+        base_model: Optional base model to use for transfer learning.
+            If left as default of None, use Keras ResNet50 trained on ImageNet.
 
     Returns:
         ResNet model created.
     """
-    base_model = tf.keras.applications.ResNet50(weights="imagenet", include_top=False)
+    if base_model is None:
+        base_model = tf.keras.applications.ResNet50(
+            weights="imagenet", include_top=False
+        )
     base_model.trainable = False  # Freeze the model
     return tf.keras.Sequential(
         [
@@ -140,14 +150,35 @@ def make_resnet_tl_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Mo
             tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
             # Last layer matches number of classes
             tf.keras.layers.Dense(
-                units=top_fc_units, name="predictions", activation="softmax"
+                units=top_fc_units, activation="softmax", name="predictions"
             ),
         ],
         name="tl_resnet50",
     )
 
 
+def load_resnet_model(filepath: str, include_top: bool = True) -> tf.keras.Model:
+    """
+    Load a ResNet model optionally including the top softmax layer.
+
+    Args:
+        filepath: Absolute path to the saved model.
+        include_top: If you want to include the top global average pooling and FC layer.
+            Set False (non-default) when you want to do transfer learning.
+
+    Returns:
+        ResNet model loaded.
+    """
+    model: tf.keras.Model = tf.keras.models.load_model(filepath)
+    if not include_top:
+        model = tf.keras.Model(inputs=model.input, outputs=model.layers[-1].output)
+    return model
+
+
 if __name__ == "__main__":
+    loaded_model = load_resnet_model(
+        os.path.join(MODELS_DIR_ABS_PATH, get_model_by_nickname("RESNET-TL"))
+    )
     resnet_diy_model = make_resnet_diy_model(10)
     resnet_tl_model = make_resnet_tl_model(10)
     _ = 0  # Debug here
