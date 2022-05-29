@@ -11,7 +11,7 @@ VGG_IMAGE_SHAPE = (*VGG_IMAGE_SIZE, 3)  # RGB
 VGG_TOP_FC_UNITS: TopFCUnits = (4096, 4096, 1000)  # From the paper to match ImageNet
 
 
-def make_tl_model(top_fc_units: TopFCUnits = VGG_TOP_FC_UNITS) -> tf.keras.Model:
+def make_vgg16_tl_model(top_fc_units: TopFCUnits = VGG_TOP_FC_UNITS) -> tf.keras.Model:
     """
     Make a VGG16 model given a number of classes and FC units.
 
@@ -44,5 +44,10 @@ def make_tl_model(top_fc_units: TopFCUnits = VGG_TOP_FC_UNITS) -> tf.keras.Model
                 units=top_fc_units[-1], activation="softmax", name="predictions"
             ),
         ],
-        name="diy_tl_vgg16",
+        name="tl_vgg16",
     )
+
+
+if __name__ == "__main__":
+    vgg16_tl_model = make_vgg16_tl_model((4096, 4096, 10))
+    _ = 0  # Debug here

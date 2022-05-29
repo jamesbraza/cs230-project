@@ -10,8 +10,13 @@ from data.dataset_utils import (
     get_label_overlap,
     pass_class_names,
 )
-from models.resnet import RESNET_IMAGE_SIZE, make_resnet_model
-from models.vgg16 import VGG_IMAGE_SIZE, VGG_TOP_FC_UNITS, TopFCUnits, make_tl_model
+from models.resnet import RESNET_IMAGE_SIZE, make_resnet_diy_model, make_resnet_tl_model
+from models.vgg16 import (
+    VGG_IMAGE_SIZE,
+    VGG_TOP_FC_UNITS,
+    TopFCUnits,
+    make_vgg16_tl_model,
+)
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import (
     DEFAULT_DELIM,
@@ -35,18 +40,21 @@ LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
 SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
 # Which model to train
-MODEL: Literal["vgg16", "resnet"] = "vgg16"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 
-if MODEL == "vgg16":
+if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
-    model_factory: Callable[..., tf.keras.Model] = make_tl_model
+    model_factory: Callable[..., tf.keras.Model] = make_vgg16_tl_model
     top_fc_units: Union[TopFCUnits, int] = (
         *VGG_TOP_FC_UNITS[:-1],
         len(SMALL_DATASET_LABELS),
     )
-elif MODEL == "resnet":
+elif MODEL.startswith("resnet"):
     image_size = RESNET_IMAGE_SIZE
-    model_factory = make_resnet_model
+    if MODEL == "resnet_diy":
+        model_factory = make_resnet_diy_model
+    else:
+        model_factory = make_resnet_tl_model
     top_fc_units = len(SMALL_DATASET_LABELS)
 else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
