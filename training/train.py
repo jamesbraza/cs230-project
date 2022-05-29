@@ -23,10 +23,12 @@ ES_PATIENCE_EPOCHS = 8
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
 # If you want to mix in the full clothing dataset
-DATA_AUGMENTATION = True
+DATA_AUGMENTATION = False
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
+# Set to a nickname for the save file to help facilitate reuse
+SAVE_NICKNAME: str = "UNNAMED"
 # Which model to train
 MODEL: Literal["vgg16", "resnet"] = "vgg16"
 
@@ -79,7 +81,8 @@ current_ts = get_ts_now_as_str()
 checkpoint_delim = "--"
 ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
-    checkpoint_delim.join(["%s", "{epoch:02d}", "{loss:.2f}.hdf5"]) % current_ts,
+    checkpoint_delim.join(["%s", SAVE_NICKNAME, "{epoch:02d}", "{loss:.2f}.hdf5"])
+    % current_ts,
 )
 initial_epoch: int = 0
 if LAST_CHECKPOINT is not None:  # Recover from checkpoint
@@ -106,5 +109,5 @@ history: tf.keras.callbacks.History = model.fit(
 )
 
 # 4. Save the model for future use
-model.save(os.path.join(MODELS_DIR_ABS_PATH, current_ts))
+model.save(os.path.join(MODELS_DIR_ABS_PATH, f"{current_ts}_{SAVE_NICKNAME}"))
 _ = 0  # Debug here
