@@ -11,7 +11,12 @@ from data.dataset_utils import (
     pass_class_names,
 )
 from models.resnet import RESNET_IMAGE_SIZE, make_resnet_model
-from models.vgg16 import VGG_IMAGE_SIZE, VGG_TOP_FC_UNITS, TopFCUnits, make_tl_model
+from models.vgg16 import (
+    VGG_IMAGE_SIZE,
+    VGG_TOP_FC_UNITS,
+    TopFCUnits,
+    make_vgg16_tl_model,
+)
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import (
     DEFAULT_DELIM,
@@ -39,7 +44,7 @@ MODEL: Literal["vgg16", "resnet"] = "vgg16"
 
 if MODEL == "vgg16":
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
-    model_factory: Callable[..., tf.keras.Model] = make_tl_model
+    model_factory: Callable[..., tf.keras.Model] = make_vgg16_tl_model
     top_fc_units: Union[TopFCUnits, int] = (
         *VGG_TOP_FC_UNITS[:-1],
         len(SMALL_DATASET_LABELS),
