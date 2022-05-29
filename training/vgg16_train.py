@@ -33,7 +33,7 @@ if MODEL == "vgg16":
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
     model_factory: Callable[..., tf.keras.Model] = make_tl_model
     top_fc_units: Union[TopFCUnits, int] = (
-        *[u for u in VGG_TOP_FC_UNITS[:-1]],
+        *VGG_TOP_FC_UNITS[:-1],
         len(SMALL_DATASET_LABELS),
     )
 else:
