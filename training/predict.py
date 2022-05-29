@@ -30,7 +30,7 @@ MODEL_NAME = get_most_recent_model()
 # If you want to plot images when making predictions
 PLOT_IMAGES = False
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
