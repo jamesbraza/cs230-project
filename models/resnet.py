@@ -109,7 +109,7 @@ def make_resnet_diy_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.M
         tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
         # Last layer matches number of classes
         tf.keras.layers.Dense(
-            units=top_fc_units, name="predictions", activation="softmax"
+            units=top_fc_units, activation="softmax", name="predictions"
         ),
     ]:
         x = layer(x)
@@ -140,7 +140,7 @@ def make_resnet_tl_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Mo
             tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
             # Last layer matches number of classes
             tf.keras.layers.Dense(
-                units=top_fc_units, name="predictions", activation="softmax"
+                units=top_fc_units, activation="softmax", name="predictions"
             ),
         ],
         name="tl_resnet50",
