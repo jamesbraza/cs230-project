@@ -91,6 +91,7 @@ def explore_full_dataset() -> None:
 
 def explore_shirts_dataset() -> None:
     train_ds, val_ds, _, labels = get_dataset("shirts")
+    _ = 0  # Debug here
 
 
 def explore_home_dataset() -> None:
