@@ -40,7 +40,7 @@ DATA_AUGMENTATION: Literal[0, 1, 2] = 0
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
+SAVE_NICKNAME: str = "RESNET-TL"
 # Which model to train
 MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 
