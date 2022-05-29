@@ -13,7 +13,12 @@ from data.dataset_utils import (
 from models.resnet import RESNET_IMAGE_SIZE, make_resnet_model
 from models.vgg16 import VGG_IMAGE_SIZE, VGG_TOP_FC_UNITS, TopFCUnits, make_tl_model
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
-from training.utils import get_ts_now_as_str, preprocess_dataset
+from training.utils import (
+    DEFAULT_DELIM,
+    DEFAULT_SAVE_NICKNAME,
+    get_ts_now_as_str,
+    preprocess_dataset,
+)
 
 # Num epochs if not early stopped
 MAX_NUM_EPOCHS = 64
@@ -28,7 +33,7 @@ DATA_AUGMENTATION = False
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = "UNNAMED"
+SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
 # Which model to train
 MODEL: Literal["vgg16", "resnet"] = "vgg16"
 
@@ -78,15 +83,14 @@ model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accur
 
 # 3. Perform the actual training
 current_ts = get_ts_now_as_str()
-checkpoint_delim = "--"
 ckpt_filename = os.path.join(
     CKPTS_DIR_ABS_PATH,
-    checkpoint_delim.join(["%s", SAVE_NICKNAME, "{epoch:02d}", "{loss:.2f}.hdf5"])
+    DEFAULT_DELIM.join(["%s", SAVE_NICKNAME, "{epoch:02d}", "{loss:.2f}.hdf5"])
     % current_ts,
 )
 initial_epoch: int = 0
 if LAST_CHECKPOINT is not None:  # Recover from checkpoint
-    initial_epoch = int(LAST_CHECKPOINT.split(checkpoint_delim)[1])
+    initial_epoch = int(LAST_CHECKPOINT.split(DEFAULT_DELIM)[1])
     model.load_weights(os.path.join(CKPTS_DIR_ABS_PATH, LAST_CHECKPOINT))
 callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
@@ -109,5 +113,7 @@ history: tf.keras.callbacks.History = model.fit(
 )
 
 # 4. Save the model for future use
-model.save(os.path.join(MODELS_DIR_ABS_PATH, f"{current_ts}_{SAVE_NICKNAME}"))
+model.save(
+    os.path.join(MODELS_DIR_ABS_PATH, f"{current_ts}{DEFAULT_DELIM}{SAVE_NICKNAME}")
+)
 _ = 0  # Debug here

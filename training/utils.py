@@ -16,21 +16,44 @@ def get_ts_now_as_str() -> str:
     return datetime.now().isoformat().replace(":", "_")
 
 
-def get_most_recent_model(models_dir: str = MODELS_DIR_ABS_PATH) -> str:
+DEFAULT_DELIM: str = "--"
+DEFAULT_SAVE_NICKNAME: str = "UNNAMED"
+
+
+def get_most_recent_model(
+    models_dir: str = MODELS_DIR_ABS_PATH, delim: str = DEFAULT_DELIM
+) -> str:
     """Get the most recent model in the input directory."""
     most_recent_file: Tuple[str, Optional[datetime]] = "", None
     for file in os.listdir(models_dir):
         abs_file = os.path.join(models_dir, file)
         if os.path.isdir(abs_file):
             try:
-                ts = datetime.fromisoformat(file.replace("_", ":"))
+                ts = datetime.fromisoformat(file.replace("_", ":").split(delim)[0])
             except ValueError:
                 continue
             if most_recent_file[1] is None or ts > most_recent_file[1]:
                 most_recent_file = abs_file, ts
     if most_recent_file == "":
-        raise LookupError(f"Didn't find a model in {models_dir}.")
+        raise LookupError(f"Didn't find a recent model in {models_dir}.")
     return most_recent_file[0]
+
+
+def get_model_by_nickname(
+    models_dir: str = MODELS_DIR_ABS_PATH,
+    nickname: str = DEFAULT_SAVE_NICKNAME,
+    delim: str = DEFAULT_DELIM,
+) -> str:
+    """Get a model by nickname from the input directory."""
+    for file in os.listdir(models_dir):
+        abs_file = os.path.join(models_dir, file)
+        if os.path.isdir(abs_file):
+            try:
+                if file.split(delim)[1] == nickname:
+                    return abs_file
+            except ValueError:
+                continue
+    raise LookupError(f"Didn't find a model nicknamed {nickname} in {models_dir}.")
 
 
 ImagesLabelsPreds = List[Tuple[tf.Tensor, int, int]]
