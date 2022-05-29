@@ -16,7 +16,15 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
-SMALL_DATASET_LABELS: List[str] = sorted(os.listdir(SMALL_TRAIN_ABS_PATH))
+
+def _get_subdir_names(path: str) -> List[str]:
+    """Get a sorted list of names of all subdirectories at the input path."""
+    return sorted(
+        [file for file in os.listdir(path) if os.path.isdir(os.path.join(path, file))]
+    )
+
+
+SMALL_DATASET_LABELS: List[str] = _get_subdir_names(SMALL_TRAIN_ABS_PATH)
 FULL_DATASET_LABELS: List[str] = [
     "undershirt",
     "hat",
@@ -39,6 +47,7 @@ FULL_DATASET_LABELS: List[str] = [
     "pants",
     "blazer",
 ]
+SHIRTS_DATASET_LABELS: List[str] = _get_subdir_names(SHIRTS_ABS_PATH)
 
 DatasetNames = Literal["small", "full", "shirts"]
 
