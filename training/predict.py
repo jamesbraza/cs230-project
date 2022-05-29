@@ -1,7 +1,7 @@
 import collections
 import functools
 import os
-from typing import DefaultDict, Dict, List, Optional, Sequence, Tuple
+from typing import DefaultDict, Dict, List, Literal, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 
 from data.dataset_utils import SMALL_DATASET_LABELS, get_dataset
+from models.resnet import RESNET_IMAGE_SIZE
 from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
 from training.utils import (
@@ -22,10 +23,21 @@ from training.utils import (
     plot_batch_predictions,
 )
 
-MODEL_NAME = get_most_recent_model()
-PLOT_IMAGES = False
-
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
+
+# Name of the persisted Model metadata to load
+MODEL_NAME = get_most_recent_model()
+# If you want to plot images when making predictions
+PLOT_IMAGES = False
+# Which model to predict with
+MODEL: Literal["vgg16", "resnet"] = "vgg16"
+
+if MODEL == "vgg16":
+    image_size: Tuple[int, int] = VGG_IMAGE_SIZE
+elif MODEL == "resnet":
+    image_size = RESNET_IMAGE_SIZE
+else:
+    raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 
 def get_dataset_predict_stats(
@@ -110,9 +122,7 @@ def get_dataset_accuracy(
 
 
 # 1. Get the dataset(s)
-train_ds, val_ds, test_ds = get_dataset(
-    "small", image_size=VGG_IMAGE_SIZE, batch_size=16
-)
+train_ds, val_ds, test_ds = get_dataset("small", image_size=image_size, batch_size=16)
 
 # 2. Rehydrate the model
 model_location = os.path.join(MODELS_DIR_ABS_PATH, MODEL_NAME)
@@ -139,6 +149,7 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in [
         f"of {ds_total} images: {readable_ds_per_label}."
     )
 conf_matrix = get_confusion_matrix(model, test_ds)
-plot_confusion_matrix(conf_matrix, SMALL_DATASET_LABELS)
-plt.show()
+if PLOT_IMAGES:
+    plot_confusion_matrix(conf_matrix, SMALL_DATASET_LABELS)
+    plt.show()
 _ = 0  # Debug here
