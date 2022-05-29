@@ -48,6 +48,7 @@ def make_resnet_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model
 
     Args:
         top_fc_units: Number of units to use in the top FC layer.
+            Default is one FC layer per the ResNet paper.
 
     Returns:
         ResNet model created.
@@ -115,6 +116,38 @@ def make_resnet_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model
     return tf.keras.Model(inputs=x_input, outputs=x, name="diy_resnet50")
 
 
+def make_resnet_tl_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model:
+    """
+    Make a ResNet transfer-learned model given a number of classes and FC units.
+
+    Args:
+        top_fc_units: Number of units to use in the top FC layer.
+            Default is one FC layer per the ResNet paper.
+
+    Returns:
+        ResNet model created.
+    """
+    base_model = tf.keras.applications.ResNet50(weights="imagenet", include_top=False)
+    base_model.trainable = False  # Freeze the model
+    return tf.keras.Sequential(
+        [
+            tf.keras.Input(shape=RESNET_IMAGE_SHAPE),  # Specify input size
+            tf.keras.layers.Lambda(
+                function=tf.keras.applications.vgg16.preprocess_input,
+                name="preprocess_images",
+            ),
+            base_model,
+            tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
+            # Last layer matches number of classes
+            tf.keras.layers.Dense(
+                units=top_fc_units, name="predictions", activation="softmax"
+            ),
+        ],
+        name="tl_resnet50",
+    )
+
+
 if __name__ == "__main__":
-    resnet_model = make_resnet_model(10)
+    resnet_diy_model = make_resnet_model(10)
+    resnet_tl_model = make_resnet_tl_model(10)
     _ = 0  # Debug here
