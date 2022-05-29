@@ -51,7 +51,7 @@ def get_model_by_nickname(
             try:
                 if file.split(delim)[1] == nickname:
                     return abs_file
-            except ValueError:
+            except IndexError:
                 continue
     raise LookupError(f"Didn't find a model nicknamed {nickname} in {models_dir}.")
 
