@@ -42,7 +42,7 @@ CONV_4_CONV_FILTERS = ConvBlockConfig((256, 256, 1024), (2, 2), 6)
 CONV_5_CONV_FILTERS = ConvBlockConfig((512, 512, 2048), (2, 2), 3)
 
 
-def make_resnet_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model:
+def make_resnet_diy_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Model:
     """
     Make a ResNet model given a number of classes and FC units.
 
@@ -148,6 +148,6 @@ def make_resnet_tl_model(top_fc_units: int = RESNET_TOP_FC_UNITS) -> tf.keras.Mo
 
 
 if __name__ == "__main__":
-    resnet_diy_model = make_resnet_model(10)
+    resnet_diy_model = make_resnet_diy_model(10)
     resnet_tl_model = make_resnet_tl_model(10)
     _ = 0  # Debug here
