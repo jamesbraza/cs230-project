@@ -5,7 +5,6 @@ import tensorflow as tf
 
 from data.dataset_utils import (
     FULL_DATASET_LABELS,
-    SMALL_DATASET_LABELS,
     get_dataset,
     get_label_overlap,
     pass_class_names,
@@ -45,32 +44,25 @@ MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
     model_factory: Callable[..., tf.keras.Model] = make_vgg16_tl_model
-    top_fc_units: Union[TopFCUnits, int] = (
-        *VGG_TOP_FC_UNITS[:-1],
-        len(SMALL_DATASET_LABELS),
-    )
 elif MODEL.startswith("resnet"):
     image_size = RESNET_IMAGE_SIZE
     if MODEL == "resnet_diy":
         model_factory = make_resnet_diy_model
     else:
         model_factory = make_resnet_tl_model
-    top_fc_units = len(SMALL_DATASET_LABELS)
 else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 # 1. Prepare the training data
-train_ds, val_ds, _ = get_dataset("small", image_size=image_size)
+train_ds, val_ds, _, labels = get_dataset("small", image_size=image_size)
 train_ds = preprocess_dataset(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
 if DATA_AUGMENTATION:
-    full_train_ds, _, _ = get_dataset(
+    full_train_ds, _, _, _ = get_dataset(
         "full",
         image_size=image_size,
         validation_split=0.0,
-        filter_labels=get_label_overlap(
-            SMALL_DATASET_LABELS, other_ds_labels=FULL_DATASET_LABELS
-        ),
+        filter_labels=get_label_overlap(labels, other_ds_labels=FULL_DATASET_LABELS),
     )
     full_train_ds = preprocess_dataset(full_train_ds)
     train_ds = pass_class_names(train_ds, train_ds.concatenate(full_train_ds))
@@ -84,6 +76,14 @@ else:
 # Pre-fetch batches so the GPU has minimal downtime
 train_ds = pass_class_names(train_ds, train_ds.prefetch(tf.data.AUTOTUNE))
 val_ds = pass_class_names(val_ds, val_ds.prefetch(tf.data.AUTOTUNE))
+
+# TODO: figure out how to consolidate this if statements with the above
+if MODEL.startswith("vgg16"):
+    top_fc_units: Union[TopFCUnits, int] = (*VGG_TOP_FC_UNITS[:-1], len(labels))
+elif MODEL.startswith("resnet"):
+    top_fc_units = len(labels)
+else:
+    raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 # 2. Create and compile the model
 model = model_factory(top_fc_units=top_fc_units)

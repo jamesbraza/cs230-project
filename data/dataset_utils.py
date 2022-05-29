@@ -157,7 +157,7 @@ def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
 
 def get_dataset(
     name: DatasetNames, **kwargs
-) -> Tuple[tf.data.Dataset, tf.data.Dataset, Optional[tf.data.Dataset]]:
+) -> Tuple[tf.data.Dataset, tf.data.Dataset, Optional[tf.data.Dataset], List[str]]:
     """
     Get one of the three datasets discussed in the README.
 
@@ -169,17 +169,20 @@ def get_dataset(
                 and pixel values will be float. Cast to uint8 for visualization.
 
     Returns:
-        Tuple of datasets: train, validation/dev, test.
+        Tuple of datasets: train, validation/dev, test, labels.
     """
     if name == "small":
         paths = [SMALL_TRAIN_ABS_PATH, SMALL_DEV_ABS_PATH, SMALL_TEST_ABS_PATH]
-        return tuple(  # type: ignore[return-value]
-            tf.keras.preprocessing.image_dataset_from_directory(path, **kwargs)
-            for path in paths
+        return (  # type: ignore[return-value]
+            *tuple(
+                tf.keras.preprocessing.image_dataset_from_directory(path, **kwargs)
+                for path in paths
+            ),
+            SMALL_DATASET_LABELS,
         )
     kwargs = {**{"seed": 42, "validation_split": 0.1}, **kwargs}
     if name == "full":
-        return (*get_full_dataset(**kwargs), None)
+        return (*get_full_dataset(**kwargs), None, FULL_DATASET_LABELS)  # type: ignore[return-value]
     directory = SHIRTS_ABS_PATH
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **{**{"subset": "training"}, **kwargs}
@@ -187,7 +190,7 @@ def get_dataset(
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **{**{"subset": "validation"}, **kwargs}
     )
-    return train_ds, val_ds, None
+    return train_ds, val_ds, None, SHIRTS_DATASET_LABELS
 
 
 def get_num_classes(dataset: tf.data.Dataset) -> int:
