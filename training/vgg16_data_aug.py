@@ -11,9 +11,9 @@ from training.utils import get_ts_now_as_str
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 64
+MAX_NUM_EPOCHS = 48
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 8
+ES_PATIENCE_EPOCHS = 64
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -43,10 +43,22 @@ def make_vgg_preprocessing_generator(
             batch_labels, get_num_classes(dataset), dtype="bool"
         )
 
+datagen = ImageDataGenerator(
+        rotation_range=30,
+        width_shift_range=20,
+        height_shift_range=20,
+        shear_range=5,
+        zoom_range=0.1,
+        horizontal_flip=True,
+        fill_mode = 'nearest')
 
 # 1. Prepare the training data
 train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
-train_data_generator = make_vgg_preprocessing_generator(train_ds)
+train_datagen = datagen.flow_from_directory(
+        'data/clothing_dataset_small/train',
+        target_size=VGG_IMAGE_SIZE,
+        seed=0)
+
 train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 if VALIDATION_STEPS is None:
@@ -77,7 +89,7 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
-    train_data_generator,
+    train_datagen,
     epochs=MAX_NUM_EPOCHS,
     steps_per_epoch=train_steps_per_epoch,
     validation_data=val_data_generator,

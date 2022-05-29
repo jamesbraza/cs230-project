@@ -24,19 +24,26 @@ def make_tl_model(
     Returns:
         Model created.
     """
+    tf.random.set_seed(0)
     base_model = tf.keras.applications.VGG16(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
     dense_layers = [
-        tf.keras.layers.Dense(units, activation="relu") for units in top_fc_units
+            tf.keras.layers.Dropout(rate=0.2)
+            tf.keras.layers.Dense(top_fc_units[0], activation="relu"),
+            tf.keras.layers.Dropout(rate=0.2)
+            tf.keras.layers.Dense(top_fc_units[1], activation="relu"),
+            tf.keras.layers.Dense(top_fc_units[2], activation="relu")
     ]
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
             tf.keras.layers.Lambda(tf.keras.applications.vgg16.preprocess_input),
+            tf.keras.layers.Dropout(rate=0.2),
             base_model,
             tf.keras.layers.Flatten(),
             *dense_layers,
             # Last layer matches number of classes
-            tf.keras.layers.Dense(num_classes, activation="softmax"),
+            tf.keras.layers.Dense(num_classes, activation="softmax",
+                kernel_regularizer=tf.keras.regularizers.l2(0.01)),
         ]
     )
