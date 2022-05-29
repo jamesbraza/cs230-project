@@ -17,6 +17,7 @@ from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
 from training.utils import (
     ImagesLabelsPreds,
+    get_model_by_nickname,
     get_most_recent_model,
     plot_batch_predictions,
 )
