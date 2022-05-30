@@ -3,6 +3,7 @@
 import os
 from typing import List
 
+import PIL
 import tensorflow as tf
 from PIL import Image
 
@@ -25,9 +26,12 @@ def is_valid_image(path: str, img_format: str = JPEG) -> bool:
 
     SEE: https://stackoverflow.com/a/48178294/11163122
     """
-    with Image.open(path) as im:
-        im.verify()
-        return im.format == img_format
+    try:
+        with Image.open(path) as im:
+            im.verify()
+            return im.format == img_format
+    except PIL.UnidentifiedImageError:  # Not an image (e.g. .DS_Store)
+        return False
 
 
 def clean_images(
@@ -70,7 +74,29 @@ def clean_images(
                 )
 
 
-if __name__ == "__main__":
-    from data.dataset_utils import SHIRTS_ABS_PATH, SHIRTS_DATASET_LABELS
+def bulk_rename(base_folder: str, labels: List[str]) -> None:
+    """Rename an entire dataset so image names are incrementing integers."""
+    for label in labels:
+        folder_path = os.path.join(base_folder, label)
+        if not os.path.isdir(folder_path):
+            continue
+        i = 1
+        for fname in sorted(os.listdir(folder_path)):
+            fpath = os.path.join(folder_path, fname)
+            if is_valid_image(fpath):
+                while os.path.exists(os.path.join(folder_path, f"{i}.jpg")):
+                    i += 1  # Go to next available index
+                os.rename(fpath, os.path.join(folder_path, f"{i}.jpg"))
+                i += 1
 
-    clean_images(SHIRTS_ABS_PATH, SHIRTS_DATASET_LABELS)
+
+if __name__ == "__main__":
+    from data.dataset_utils import (
+        HOME_ABS_PATH,
+        HOME_DATASET_LABELS,
+        SHIRTS_ABS_PATH,
+        SHIRTS_DATASET_LABELS,
+    )
+
+    bulk_rename(HOME_ABS_PATH, HOME_DATASET_LABELS)
+    # clean_images(SHIRTS_ABS_PATH, SHIRTS_DATASET_LABELS)
