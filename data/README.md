@@ -41,6 +41,14 @@ so we rolled out the `data/clean` module to remove them for training.
 kaggle datasets download -p shirts_dataset --unzip gabrielalbertin/clothing-dataset
 ```
 
+## Home Dataset
+
+I wanted to have images actually live within this repo for people just perusing.
+It provides a good sense of clothing images/data.
+
+This dataset consists of `.jpg` images taken in my backyard of my own clothing items.
+I matched the label system used by the small clothing dataset.
+
 [1]: https://www.kaggle.com/datasets/abdelrahmansoltan98/clothing-dataset-small
 [2]: https://www.kaggle.com/datasets/agrigorev/clothing-dataset-full
 [3]: https://www.kaggle.com/datasets/gabrielalbertin/clothing-dataset

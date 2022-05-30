@@ -18,6 +18,8 @@ FULL_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "clothing_dataset_full")
 
 SHIRTS_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "shirts_dataset", "Dataset")
 
+HOME_ABS_PATH = os.path.join(DATA_DIR_ABS_PATH, "home_dataset", "dataset")
+
 
 def _get_subdir_names(path: str) -> List[str]:
     """Get a sorted list of names of all subdirectories at the input path."""
@@ -50,8 +52,9 @@ FULL_DATASET_LABELS: List[str] = [
     "blazer",
 ]
 SHIRTS_DATASET_LABELS: List[str] = _get_subdir_names(SHIRTS_ABS_PATH)
+HOME_DATASET_LABELS: List[str] = SMALL_DATASET_LABELS
 
-DatasetNames = Literal["small", "full", "shirts"]
+DatasetNames = Literal["small", "full", "shirts", "home"]
 
 
 def get_full_dataset(  # noqa: C901  # pylint: disable=too-many-locals
@@ -182,14 +185,17 @@ def get_dataset(
     kwargs = {**{"seed": 42, "validation_split": 0.1}, **kwargs}
     if name == "full":
         return (*get_full_dataset(**kwargs), None, FULL_DATASET_LABELS)  # type: ignore[return-value]
-    directory = SHIRTS_ABS_PATH
+    if name == "shirts":
+        directory, labels = SHIRTS_ABS_PATH, SHIRTS_DATASET_LABELS
+    else:
+        directory, labels = HOME_ABS_PATH, HOME_DATASET_LABELS
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **{**{"subset": "training"}, **kwargs}
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
         directory, **{**{"subset": "validation"}, **kwargs}
     )
-    return train_ds, val_ds, None, SHIRTS_DATASET_LABELS
+    return train_ds, val_ds, None, labels
 
 
 def get_num_classes(dataset: tf.data.Dataset) -> int:
