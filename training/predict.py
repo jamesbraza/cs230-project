@@ -82,7 +82,7 @@ def get_dataset_accuracy(
 
 # 1. Get the dataset(s)
 train_ds, val_ds, test_ds, labels = get_dataset(
-    "shirts", image_size=image_size, batch_size=16
+    "shirts", image_size=image_size, batch_size=4, validation_split=0.99
 )
 
 # 2. Rehydrate the model
