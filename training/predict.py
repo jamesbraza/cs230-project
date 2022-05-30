@@ -1,16 +1,10 @@
 import collections
-import functools
 import os
-from typing import DefaultDict, Dict, List, Literal, Optional, Sequence, Tuple
+from typing import DefaultDict, Dict, List, Literal, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import (
-    ConfusionMatrixDisplay,
-    classification_report,
-    confusion_matrix,
-)
 
 from data.dataset_utils import get_dataset
 from models.resnet import RESNET_IMAGE_SIZE
@@ -18,9 +12,13 @@ from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
 from training.utils import (
     ImagesLabelsPreds,
+    get_classification_report,
+    get_confusion_matrix,
     get_path_to_model_by_nickname,
     get_path_to_most_recent_model,
     plot_batch_predictions,
+    plot_confusion_matrix,
+    plot_softmax_visualization,
 )
 
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
@@ -68,45 +66,6 @@ def get_dataset_predict_stats(
         (label, dataset.class_names[label]): (correct, total)
         for label, (correct, total) in sorted(correct_totals.items())
     }
-
-
-@functools.lru_cache(5)
-def _get_labels_preds(
-    trained_model: tf.keras.Model, dataset: tf.data.Dataset
-) -> List[Tuple[int, int]]:
-    """Get a pairing of label-to-pred for an entire dataset."""
-    labels_preds: List[Tuple[int, int]] = []
-    for images, labels in dataset.unbatch():
-        preds: np.ndarray = trained_model.predict(tf.expand_dims(images, axis=0))
-        pred: int = np.argmax(np.squeeze(preds))
-        labels_preds.append((int(labels), pred))
-    return labels_preds
-
-
-def get_confusion_matrix(
-    trained_model: tf.keras.Model, dataset: tf.data.Dataset
-) -> np.ndarray:
-    """Get a confusion matrix from a trained model and input dataset."""
-    return confusion_matrix(*zip(*_get_labels_preds(trained_model, dataset)))
-
-
-def plot_confusion_matrix(
-    cm: np.ndarray, display_labels: Optional[Sequence[str]] = None
-) -> None:
-    """Plot a confusion matrix optionally with labels to display."""
-    disp = ConfusionMatrixDisplay(cm, display_labels=display_labels)
-    disp.plot(xticks_rotation="vertical")
-
-
-def get_classification_report(
-    trained_model: tf.keras.Model,
-    dataset: tf.data.Dataset,
-    display_labels: Optional[Sequence[str]] = None,
-) -> str:
-    """Get a classification report (precision, recall, F1 score) using sklearn."""
-    return classification_report(
-        *zip(*_get_labels_preds(trained_model, dataset)), target_names=display_labels
-    )
 
 
 def get_dataset_accuracy(

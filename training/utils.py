@@ -1,11 +1,17 @@
+import functools
 import math
 import os
 from datetime import datetime
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    classification_report,
+    confusion_matrix,
+)
 
 from data.dataset_utils import get_num_classes, pass_class_names
 from training import MODELS_DIR_ABS_PATH
@@ -140,3 +146,97 @@ def preprocess_dataset(
         return x, tf.one_hot(y, depth=num_classes)
 
     return pass_class_names(dataset, dataset.map(_preprocess))
+
+
+@functools.lru_cache(5)
+def _get_labels_preds(
+    trained_model: tf.keras.Model, dataset: tf.data.Dataset
+) -> List[Tuple[int, int]]:
+    """Get a pairing of label-to-pred for an entire dataset."""
+    labels_preds: List[Tuple[int, int]] = []
+    for images, labels in dataset.unbatch():
+        preds: np.ndarray = trained_model.predict(tf.expand_dims(images, axis=0))
+        pred: int = np.argmax(np.squeeze(preds))
+        labels_preds.append((int(labels), pred))
+    return labels_preds
+
+
+def get_confusion_matrix(
+    trained_model: tf.keras.Model, dataset: tf.data.Dataset
+) -> np.ndarray:
+    """Get a confusion matrix from a trained model and input dataset."""
+    return confusion_matrix(*zip(*_get_labels_preds(trained_model, dataset)))
+
+
+def plot_confusion_matrix(
+    cm: np.ndarray, display_labels: Optional[Sequence[str]] = None
+) -> None:
+    """Plot a confusion matrix optionally with labels to display."""
+    disp = ConfusionMatrixDisplay(cm, display_labels=display_labels)
+    disp.plot(xticks_rotation="vertical")
+
+
+def get_classification_report(
+    trained_model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    display_labels: Optional[Sequence[str]] = None,
+) -> str:
+    """Get a classification report (precision, recall, F1 score) using sklearn."""
+    return classification_report(
+        *zip(*_get_labels_preds(trained_model, dataset)), target_names=display_labels
+    )
+
+
+def plot_softmax_visualization(
+    trained_model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    num_rows: int,
+    num_cols: int,
+) -> None:
+    """Plot a visualization of the input model + dataset's performance."""
+    num_images = num_rows * num_cols
+    plt.figure(figsize=(2 * 2 * num_cols, 2 * num_rows))
+    for i, (image, label) in enumerate(dataset.unbatch()):
+        preds: np.ndarray = np.squeeze(
+            trained_model.predict(tf.expand_dims(image, axis=0))
+        )
+        plt.subplot(num_rows, 2 * num_cols, 2 * i + 1)
+        plot_image(
+            image,
+            max_pred=np.max(preds),
+            pred_label=dataset.class_names[np.argmax(preds)],
+            true_label=dataset.class_names[label],
+        )
+        plt.subplot(num_rows, 2 * num_cols, 2 * i + 2)
+        plot_softmax_bar_graph(preds, true_label_index=label)
+        if i + 1 == num_images:
+            break
+    plt.tight_layout()
+    plt.show()
+    _ = 0
+
+
+def plot_image(
+    image: tf.Tensor, max_pred: float, pred_label: str, true_label: str
+) -> None:
+    """Plot the input image with a label using the other given information."""
+    plt.grid(False)
+    plt.xticks([])
+    plt.xlabel(
+        f"{pred_label} {max_pred * 100:2.1f}% ({true_label})",
+        color="blue" if pred_label == true_label else "red",
+    )
+    plt.yticks([])
+    plt.imshow(image.numpy().astype("uint8"))
+
+
+def plot_softmax_bar_graph(preds: np.ndarray, true_label_index: int) -> None:
+    """Plot the output of the softmax activation as a bar graph."""
+    plt.grid(False)
+    plt.xticks(range(len(preds)))
+    plt.xlabel("Labels")
+    plt.yticks(range(0, 100 + 1, 10))
+    plt.ylim([0, 100])
+    thisplot = plt.bar(range(len(preds)), preds * 100, color="grey")
+    thisplot[np.argmax(preds)].set_color("red")
+    thisplot[true_label_index].set_color("blue")
