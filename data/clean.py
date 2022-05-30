@@ -5,7 +5,6 @@ from typing import List
 
 import PIL
 import tensorflow as tf
-from PIL import Image
 
 JPEG = "JPEG"  # For both .jpg and .jpeg
 
@@ -27,7 +26,7 @@ def is_valid_image(path: str, img_format: str = JPEG) -> bool:
     SEE: https://stackoverflow.com/a/48178294/11163122
     """
     try:
-        with Image.open(path) as im:
+        with PIL.Image.open(path) as im:
             im.verify()
             return im.format == img_format
     except PIL.UnidentifiedImageError:  # Not an image (e.g. .DS_Store)
