@@ -89,6 +89,6 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in [
     }
     print(
         f"{ds_name} set accuracy: {ds_accuracy * 100:.2f}% correct "
-        f"of {ds_total} images: {readable_ds_per_label}."
+        #f"of {ds_total} images: {readable_ds_per_label}."
     )
 _ = 0  # Debug here

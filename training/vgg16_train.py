@@ -11,7 +11,7 @@ from training.utils import get_ts_now_as_str
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 64
+MAX_NUM_EPOCHS = 4
 # Patience of EarlyStopping callback
 ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
