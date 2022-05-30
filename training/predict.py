@@ -12,7 +12,7 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 
-from data.dataset_utils import SMALL_DATASET_LABELS, get_dataset
+from data.dataset_utils import get_dataset
 from models.resnet import RESNET_IMAGE_SIZE
 from models.vgg16 import VGG_IMAGE_SIZE
 from training import MODELS_DIR_ABS_PATH
@@ -122,7 +122,9 @@ def get_dataset_accuracy(
 
 
 # 1. Get the dataset(s)
-train_ds, val_ds, test_ds = get_dataset("small", image_size=image_size, batch_size=16)
+train_ds, val_ds, test_ds, labels = get_dataset(
+    "small", image_size=image_size, batch_size=16
+)
 
 # 2. Rehydrate the model
 model_location = os.path.join(MODELS_DIR_ABS_PATH, MODEL_NAME)
@@ -150,6 +152,6 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in [
     )
 conf_matrix = get_confusion_matrix(model, test_ds)
 if PLOT_IMAGES:
-    plot_confusion_matrix(conf_matrix, SMALL_DATASET_LABELS)
+    plot_confusion_matrix(conf_matrix, labels)
     plt.show()
 _ = 0  # Debug here
