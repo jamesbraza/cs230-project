@@ -192,8 +192,13 @@ def plot_softmax_visualization(
     dataset: tf.data.Dataset,
     num_rows: int,
     num_cols: int,
+    save_path: Optional[str] = None,
 ) -> None:
-    """Plot a visualization of the input model + dataset's performance."""
+    """
+    Plot a visualization of the input model + dataset's performance.
+
+    SEE: https://www.tensorflow.org/tutorials/keras/classification#verify_predictions
+    """
     num_images = num_rows * num_cols
     plt.figure(figsize=(2 * 2 * num_cols, 2 * num_rows))
     for i, (image, label) in enumerate(dataset.unbatch()):
@@ -212,8 +217,10 @@ def plot_softmax_visualization(
         if i + 1 == num_images:
             break
     plt.tight_layout()
-    plt.show()
-    _ = 0
+    if save_path is not None:
+        plt.savefig(save_path)
+    else:
+        plt.show()
 
 
 def plot_image(
