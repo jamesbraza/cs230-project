@@ -12,7 +12,7 @@ from training.utils import get_ts_now_as_str
 # Num epochs if not early stopped
 MAX_NUM_EPOCHS = 32
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 32
+ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -40,7 +40,7 @@ def make_res_preprocessing_generator(
 
 
 # 1. Prepare the training data
-train_ds, val_ds, _ = get_dataset("small", image_size=RES_IMAGE_SIZE)
+train_ds, val_ds, _ = get_dataset("small", image_size=RES_IMAGE_SIZE,batch_size=32)
 train_data_generator = make_res_preprocessing_generator(train_ds)
 train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
 val_data_generator = make_res_preprocessing_generator(val_ds)
@@ -51,7 +51,7 @@ else:
 
 # 2. Create and compile the model
 model = make_tl_model(
-    num_classes=get_num_classes(train_ds), top_fc_units=(128, 128, 32)
+    num_classes=get_num_classes(train_ds)
 )
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
@@ -72,7 +72,7 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
-    train_generator,
+    train_data_generator,
     epochs=MAX_NUM_EPOCHS,
     steps_per_epoch=train_steps_per_epoch,
     validation_data=val_data_generator,

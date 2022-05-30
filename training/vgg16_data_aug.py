@@ -11,9 +11,9 @@ from training.utils import get_ts_now_as_str
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 48
+MAX_NUM_EPOCHS = 23
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 64
+ES_PATIENCE_EPOCHS = 23
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -44,11 +44,10 @@ def make_vgg_preprocessing_generator(
         )
 
 datagen = ImageDataGenerator(
-        rotation_range=30,
+        rotation_range=10,
         width_shift_range=20,
         height_shift_range=20,
-        shear_range=5,
-        zoom_range=0.1,
+        shear_range=10,
         horizontal_flip=True,
         fill_mode = 'nearest')
 
@@ -68,7 +67,7 @@ else:
 
 # 2. Create and compile the model
 model = make_tl_model(
-    num_classes=get_num_classes(train_ds), top_fc_units=(128, 128, 32)
+    num_classes=get_num_classes(train_ds)
 )
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
@@ -80,11 +79,11 @@ ckpt_filename = os.path.join(
 )
 callbacks: List[tf.keras.callbacks.Callback] = [
     tf.keras.callbacks.TensorBoard(log_dir=LOG_DIR_ABS_PATH, histogram_freq=1),
-    tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=True),
+    tf.keras.callbacks.ModelCheckpoint(ckpt_filename, save_best_only=False),
     tf.keras.callbacks.EarlyStopping(
         monitor="val_accuracy",
         patience=ES_PATIENCE_EPOCHS,
-        restore_best_weights=True,
+        restore_best_weights=False,
         verbose=1,
     ),
 ]

@@ -6,7 +6,7 @@ import tensorflow as tf
 
 RES_IMAGE_SIZE = (224, 224)
 RES_IMAGE_SHAPE = (*RES_IMAGE_SIZE, 3)  # RGB
-RES_TOP_FC_UNITS = (4096, 4096, 1000)
+RES_TOP_FC_UNITS = 1000
 
 
 def make_tl_model(
@@ -25,18 +25,14 @@ def make_tl_model(
     """
     base_model = tf.keras.applications.ResNet50V2(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
-    dense_layers = [
-            tf.keras.layers.Dense(top_fc_units[0], activation="relu"),
-            tf.keras.layers.Dense(top_fc_units[1], activation="relu"),
-            tf.keras.layers.Dense(top_fc_units[2], activation="relu")
-    ]
+    
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=RES_IMAGE_SHAPE),  # Specify input size
             tf.keras.layers.Lambda(tf.keras.applications.resnet_v2.preprocess_input),
             base_model,
-            tf.keras.layers.Flatten(),
-            *dense_layers,
+            tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
+            tf.keras.layers.Dense(top_fc_units, activation="relu"),
             # Last layer matches number of classes
             tf.keras.layers.Dense(num_classes, activation="softmax")
         ]

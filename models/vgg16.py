@@ -28,9 +28,7 @@ def make_tl_model(
     base_model = tf.keras.applications.VGG16(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
     dense_layers = [
-            tf.keras.layers.Dropout(rate=0.2)
             tf.keras.layers.Dense(top_fc_units[0], activation="relu"),
-            tf.keras.layers.Dropout(rate=0.2)
             tf.keras.layers.Dense(top_fc_units[1], activation="relu"),
             tf.keras.layers.Dense(top_fc_units[2], activation="relu")
     ]
@@ -38,7 +36,6 @@ def make_tl_model(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
             tf.keras.layers.Lambda(tf.keras.applications.vgg16.preprocess_input),
-            tf.keras.layers.Dropout(rate=0.2),
             base_model,
             tf.keras.layers.Flatten(),
             *dense_layers,

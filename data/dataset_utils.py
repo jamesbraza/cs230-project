@@ -19,7 +19,7 @@ DatasetNames = Literal["small", "full", "shirts"]
 
 
 def get_full_dataset(
-    batch_size: int = 32,
+    batch_size: int = 4,
     image_size: Tuple[int, int] = (256, 256),
     shuffle: bool = True,
     seed: Optional[int] = None,
