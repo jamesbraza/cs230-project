@@ -170,6 +170,7 @@ def get_dataset(
         Tuple of datasets: train, validation/dev, test, labels.
     """
     if name == "small":
+        # small dataset specifies the train/validation split for us, so no seed
         paths = [SMALL_TRAIN_ABS_PATH, SMALL_DEV_ABS_PATH, SMALL_TEST_ABS_PATH]
         return (  # type: ignore[return-value]
             *tuple(
