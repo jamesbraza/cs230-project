@@ -87,6 +87,7 @@ def bulk_rename(base_folder: str, labels: List[str]) -> None:
                 while os.path.exists(os.path.join(folder_path, f"{i}.jpg")):
                     i += 1  # Go to next available index
                 os.rename(fpath, os.path.join(folder_path, f"{i}.jpg"))
+                print(f"Renamed image {fname} to {i}.jpg in directory {folder_path}.")
                 i += 1
 
 
