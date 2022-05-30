@@ -135,13 +135,15 @@ train_ds_stats = get_dataset_predict_stats(model, train_ds)
 train_ds_summary = get_dataset_accuracy(train_ds_stats)
 val_ds_stats = get_dataset_predict_stats(model, val_ds)
 val_ds_summary = get_dataset_accuracy(val_ds_stats)
-test_ds_stats = get_dataset_predict_stats(model, test_ds)
-test_ds_summary = get_dataset_accuracy(test_ds_stats)
-for ds_name, ds_accuracy, ds_total, ds_per_label in [
+results: List[tuple] = [
     ("Training", *train_ds_summary),
     ("Validation", *val_ds_summary),
-    ("Test", *test_ds_summary),
-]:
+]
+if test_ds is not None:
+    test_ds_stats = get_dataset_predict_stats(model, test_ds)
+    test_ds_summary = get_dataset_accuracy(test_ds_stats)
+    results.append(("Test", *test_ds_summary))
+for ds_name, ds_accuracy, ds_total, ds_per_label in results:
     readable_ds_per_label = {
         class_name: round(acc * 100, 2)
         for (label, class_name), acc in ds_per_label.items()
@@ -150,7 +152,7 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in [
         f"{ds_name} set accuracy: {ds_accuracy * 100:.2f}% correct "
         f"of {ds_total} images: {readable_ds_per_label}."
     )
-conf_matrix = get_confusion_matrix(model, test_ds)
+conf_matrix = get_confusion_matrix(model, test_ds if test_ds else val_ds)
 if PLOT_IMAGES:
     plot_confusion_matrix(conf_matrix, labels)
     plt.show()
