@@ -11,6 +11,7 @@ from data.dataset_utils import (
     FULL_ABS_PATH,
     FULL_DATASET_LABELS,
     SHIRTS_ABS_PATH,
+    SHIRTS_DATASET_LABELS,
     SMALL_DATASET_LABELS,
     SMALL_TRAIN_ABS_PATH,
     get_dataset,
@@ -54,7 +55,7 @@ def explore_shirts_dataset_raw() -> None:
 
 
 def explore_small_dataset() -> None:
-    train_ds, val_ds, test_ds = get_dataset("small")
+    train_ds, val_ds, test_ds, labels = get_dataset("small")
     train_batches: tf.data.Dataset = train_ds.take(1)
 
     fig, ax = plt.subplots(nrows=3, ncols=3)
@@ -85,11 +86,17 @@ def explore_full_dataset() -> None:
             )
         fig.tight_layout()  # Prevent title overlap
         plt.show()
-        _ = 0
+        _ = 0  # Debug here
 
 
 def explore_shirts_dataset() -> None:
-    train_ds, val_ds, _ = get_dataset("shirts")
+    train_ds, val_ds, _, labels = get_dataset("shirts")
+
+
+def explore_home_dataset() -> None:
+    # validation_split of 0.1 yields one image in the validation set
+    train_ds, val_ds, _, labels = get_dataset("home", validation_split=0.1)
+    _ = 0  # Debug here
 
 
 if __name__ == "__main__":
@@ -99,3 +106,4 @@ if __name__ == "__main__":
     explore_small_dataset()
     explore_full_dataset()
     explore_shirts_dataset()
+    explore_home_dataset()
