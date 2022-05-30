@@ -184,7 +184,7 @@ def get_dataset(
         )
     kwargs = {**{"seed": 42, "validation_split": 0.1}, **kwargs}
     if name == "full":
-        return (*get_full_dataset(**kwargs), None, FULL_DATASET_LABELS)  # type: ignore[return-value]
+        return (*get_full_dataset(**kwargs), None, FULL_DATASET_LABELS)
     if name == "shirts":
         directory, labels = SHIRTS_ABS_PATH, SHIRTS_DATASET_LABELS
     else:
