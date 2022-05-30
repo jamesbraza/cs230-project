@@ -15,12 +15,14 @@ from models.vgg16 import (
     VGG_IMAGE_SIZE,
     VGG_TOP_FC_UNITS,
     TopFCUnits,
+    load_vgg_model,
     make_vgg16_tl_model,
 )
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import (
     DEFAULT_DELIM,
     DEFAULT_SAVE_NICKNAME,
+    get_path_to_model_by_nickname,
     get_ts_now_as_str,
     preprocess_dataset,
 )
@@ -40,9 +42,9 @@ DATA_AUGMENTATION: Literal[0, 1, 2] = 0
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
+SAVE_NICKNAME: str = "VGG-TL-SHIRTS"
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
@@ -57,7 +59,10 @@ else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 # 1. Prepare the training data
-train_ds, val_ds, _, labels = get_dataset("small", image_size=image_size)
+# 0.99 gets four batches for training
+train_ds, val_ds, _, labels = get_dataset(
+    "shirts", batch_size=4, image_size=image_size, validation_split=0.99
+)
 train_ds = preprocess_dataset(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
 if DATA_AUGMENTATION == 1:  # Data aug via ImageDataGenerator
@@ -99,7 +104,12 @@ else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 # 2. Create and compile the model
-model = model_factory(top_fc_units=top_fc_units)
+model = model_factory(
+    top_fc_units=top_fc_units,
+    base_model=load_vgg_model(
+        get_path_to_model_by_nickname("VGG-TL-FULL-AUG"), include_top=False
+    ),
+)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # 3. Perform the actual training

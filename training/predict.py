@@ -24,11 +24,11 @@ from training.utils import (
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
 
 # Name of the persisted Model metadata to load
-MODEL_NAME = get_path_to_most_recent_model()
+MODEL_NAME = get_path_to_model_by_nickname("VGG-TL-SHIRTS")
 # If you want to plot images when making predictions
 PLOT_IMAGES = False
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
@@ -82,7 +82,7 @@ def get_dataset_accuracy(
 
 # 1. Get the dataset(s)
 train_ds, val_ds, test_ds, labels = get_dataset(
-    "small", image_size=image_size, batch_size=16
+    "shirts", image_size=image_size, batch_size=16
 )
 
 # 2. Rehydrate the model
