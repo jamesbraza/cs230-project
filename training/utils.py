@@ -169,21 +169,31 @@ def get_confusion_matrix(
 
 
 def plot_confusion_matrix(
-    cm: np.ndarray, display_labels: Optional[Sequence[str]] = None
+    cm: np.ndarray,
+    display_labels: Optional[Sequence[str]] = None,
+    save_path: Optional[str] = None,
 ) -> None:
     """Plot a confusion matrix optionally with labels to display."""
     disp = ConfusionMatrixDisplay(cm, display_labels=display_labels)
     disp.plot(xticks_rotation="vertical")
+    plt.tight_layout()
+    if save_path is not None:
+        plt.savefig(save_path)
+    else:
+        plt.show()
 
 
 def get_classification_report(
     trained_model: tf.keras.Model,
     dataset: tf.data.Dataset,
     display_labels: Optional[Sequence[str]] = None,
+    digits: int = 2,
 ) -> str:
     """Get a classification report (precision, recall, F1 score) using sklearn."""
     return classification_report(
-        *zip(*_get_labels_preds(trained_model, dataset)), target_names=display_labels
+        *zip(*_get_labels_preds(trained_model, dataset)),
+        target_names=display_labels,
+        digits=digits,
     )
 
 
