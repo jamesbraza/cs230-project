@@ -3,17 +3,17 @@ from typing import Iterable, List, Optional, Tuple
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from data.dataset_utils import get_dataset, get_num_classes
 from models.vgg16 import VGG_IMAGE_SIZE, make_tl_model
 from training import CKPTS_DIR_ABS_PATH, LOG_DIR_ABS_PATH, MODELS_DIR_ABS_PATH
 from training.utils import get_ts_now_as_str
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 23
+MAX_NUM_EPOCHS = 24
 # Patience of EarlyStopping callback
-ES_PATIENCE_EPOCHS = 23
+ES_PATIENCE_EPOCHS = 24
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -43,21 +43,36 @@ def make_vgg_preprocessing_generator(
             batch_labels, get_num_classes(dataset), dtype="bool"
         )
 
+
+def concat(a, b):
+    yield from a
+    yield from b
+
+
+train_loss = []
+train_accu = []
+val_loss = []
+val_accu = []
+
 datagen = ImageDataGenerator(
-        rotation_range=10,
-        width_shift_range=20,
-        height_shift_range=20,
-        shear_range=10,
-        horizontal_flip=True,
-        fill_mode = 'nearest')
+    rotation_range=10,
+    width_shift_range=20,
+    height_shift_range=20,
+    shear_range=10,
+    horizontal_flip=True,
+    fill_mode="nearest",
+)
 
 # 1. Prepare the training data
-train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE)
+train_ds, val_ds, _ = get_dataset("small", image_size=VGG_IMAGE_SIZE, batch_size=16)
+train_data_generator = make_vgg_preprocessing_generator(train_ds)
 train_datagen = datagen.flow_from_directory(
-        'data/clothing_dataset_small/train',
-        target_size=VGG_IMAGE_SIZE,
-        seed=0)
-
+    "data/clothing_dataset_small/train",
+    target_size=VGG_IMAGE_SIZE,
+    batch_size=16,
+    seed=0,
+)
+combined_gen = concat(train_data_generator, train_datagen)
 train_steps_per_epoch: int = train_ds.cardinality().numpy()  # Full training set
 val_data_generator = make_vgg_preprocessing_generator(val_ds)
 if VALIDATION_STEPS is None:
@@ -66,9 +81,7 @@ else:
     val_steps_per_epoch = VALIDATION_STEPS
 
 # 2. Create and compile the model
-model = make_tl_model(
-    num_classes=get_num_classes(train_ds)
-)
+model = make_tl_model(num_classes=get_num_classes(train_ds))
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # 3. Perform the actual training
@@ -88,7 +101,7 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
-    train_datagen,
+    train_data_generator,
     epochs=MAX_NUM_EPOCHS,
     steps_per_epoch=train_steps_per_epoch,
     validation_data=val_data_generator,
@@ -96,6 +109,11 @@ history: tf.keras.callbacks.History = model.fit(
     callbacks=[callbacks],
 )
 
+train_loss = history.history["loss"]
+train_accu = history.history["accuracy"]
+val_loss = history.history["val_loss"]
+val_accu = history.history["val_accuracy"]
+print(history.history)
 # 4. Save the model for future use
 model.save(os.path.join(MODELS_DIR_ABS_PATH, current_ts))
 _ = 0  # Debug here
