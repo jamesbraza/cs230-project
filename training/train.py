@@ -5,6 +5,7 @@ import tensorflow as tf
 
 from data.dataset_utils import (
     FULL_DATASET_LABELS,
+    SMALL_TRAIN_ABS_PATH,
     get_dataset,
     get_label_overlap,
     pass_class_names,
@@ -31,15 +32,17 @@ ES_PATIENCE_EPOCHS = 8
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
-# If you want to mix in the full clothing dataset
-DATA_AUGMENTATION = False
+# 0: no data augmentation
+# 1: if you want to use ImageDataGenerator to slightly randomize images
+# 2: if you want to mix in the full clothing dataset
+DATA_AUGMENTATION: int = 1
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
+SAVE_NICKNAME: str = "VGG16-TL-DATAGEN"
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
@@ -57,7 +60,17 @@ else:
 train_ds, val_ds, _, labels = get_dataset("small", image_size=image_size)
 train_ds = preprocess_dataset(train_ds)
 train_steps_per_epoch: Optional[int] = train_ds.cardinality().numpy()
-if DATA_AUGMENTATION:
+if DATA_AUGMENTATION == 1:  # Data aug via ImageDataGenerator
+    datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+        rotation_range=20.0,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True,
+    )
+    train_datagen = datagen.flow_from_directory(
+        SMALL_TRAIN_ABS_PATH, target_size=image_size, seed=42
+    )
+elif DATA_AUGMENTATION == 2:  # Data aug via merging with full dataset
     full_train_ds, _, _, _ = get_dataset(
         "full",
         image_size=image_size,
@@ -111,7 +124,7 @@ callbacks: List[tf.keras.callbacks.Callback] = [
     ),
 ]
 history: tf.keras.callbacks.History = model.fit(
-    train_ds,
+    train_ds if DATA_AUGMENTATION != 1 else train_datagen,
     epochs=MAX_NUM_EPOCHS,
     initial_epoch=initial_epoch,
     steps_per_epoch=train_steps_per_epoch,
