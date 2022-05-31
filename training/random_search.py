@@ -90,19 +90,17 @@ def perform_random_search():
         train_accu.append(history.history["accuracy"][-1])
         val_loss.append(history.history["val_loss"][-1])
         val_accu.append(history.history["val_accuracy"][-1])
-        print(train_loss)
         print(train_accu)
         print(val_loss)
-        print(val_accu)
     return (rv_uniform, rv_loguniform, train_loss, train_accu, val_loss, val_accu)
 
 
 x, y, train_loss, train_accu, val_loss, val_accu = perform_random_search()
 
-print(train_loss)
 print(train_accu)
-print(val_loss)
 print(val_accu)
+for i, val in enumerate(val_accu):
+    print(f"i:{i}, val:{val}, x:{x[i]}, y:{y[i]}")
 
 
 plt.yscale("log")
