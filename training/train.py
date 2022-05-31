@@ -35,12 +35,12 @@ VALIDATION_STEPS: Optional[int] = None
 # 0: no data augmentation
 # 1: if you want to use ImageDataGenerator to slightly randomize images
 # 2: if you want to mix in the full clothing dataset
-DATA_AUGMENTATION: Literal[0, 1, 2] = 0
+DATA_AUGMENTATION: Literal[0, 1, 2] = 2
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
+SAVE_NICKNAME: str = "RESNET-TL-FULL-AUG"
 # Which model to train
 MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 

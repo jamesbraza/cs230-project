@@ -24,7 +24,7 @@ from training.utils import (
 Statistics = Dict[Tuple[int, str], Tuple[int, int]]
 
 # Name of the persisted Model metadata to load
-MODEL_NAME = get_path_to_most_recent_model()
+MODEL_NAME = get_path_to_model_by_nickname("RESNET-TL-FULL-AUG")
 # If you want to plot images when making predictions
 PLOT_IMAGES = False
 # Which model to train
