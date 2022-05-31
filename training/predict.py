@@ -112,7 +112,11 @@ for ds_name, ds_accuracy, ds_total, ds_per_label in results:
         f"of {ds_total} images: {readable_ds_per_label}."
     )
 conf_matrix = get_confusion_matrix(model, test_ds if test_ds else val_ds)
+print(
+    get_classification_report(
+        model, test_ds if test_ds else val_ds, display_labels=labels, digits=3
+    )
+)
 if PLOT_IMAGES:
     plot_confusion_matrix(conf_matrix, labels)
-    plt.show()
 _ = 0  # Debug here
