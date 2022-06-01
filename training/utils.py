@@ -259,3 +259,28 @@ def plot_softmax_bar_graph(preds: np.ndarray, true_label_index: int) -> None:
     thisplot = plt.bar(range(len(preds)), preds * 100, color="grey")
     thisplot[np.argmax(preds)].set_color("red")
     thisplot[true_label_index].set_color("blue")
+
+
+def plot_image_datagen(
+    datagen: tf.keras.preprocessing.image.DirectoryIterator,
+    num_rows: int,
+    num_cols: int,
+    title: Optional[str] = None,
+    save_path: Optional[str] = None,
+) -> None:
+    """Plot a visualization of the Keras image data generator."""
+    num_images = num_rows * num_cols
+    fig = plt.figure(figsize=(num_cols, num_rows), tight_layout=True)
+    if title is not None:
+        fig.suptitle(title)
+    for batch_images, _ in datagen:
+        for i in range(num_images):
+            plt.subplot(num_rows, num_cols, i + 1)
+            plt.xticks([])
+            plt.yticks([])
+            plt.imshow(batch_images[i].astype("uint8"))
+        break
+    if save_path is not None:
+        plt.savefig(save_path)
+    else:
+        plt.show()
