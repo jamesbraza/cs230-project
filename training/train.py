@@ -35,14 +35,14 @@ VALIDATION_STEPS: Optional[int] = None
 # 0: no data augmentation
 # 1: if you want to use ImageDataGenerator to slightly randomize images
 # 2: if you want to mix in the full clothing dataset
-DATA_AUGMENTATION: int = 1
+DATA_AUGMENTATION: Literal[0, 1, 2] = 0
 # Set to the last checkpoint if you want to resume training,
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = "VGG16-TL-DATAGEN"
+SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
