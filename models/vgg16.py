@@ -36,6 +36,8 @@ def make_vgg16_tl_model(
     if base_model is None:
         base_model = tf.keras.applications.VGG16(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
+    configured_rate, configured_lambda = rand_search
+    base_vgg16_model = base_model
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
@@ -43,17 +45,16 @@ def make_vgg16_tl_model(
                 function=tf.keras.applications.vgg16.preprocess_input,
                 name="preprocess_images",
             ),
-            base_model,
+            base_vgg16_model,
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dropout(rate=0.2, name="dropout1"),
             tf.keras.layers.Dense(units=top_fc_units[0], activation="relu", name="fc1"),
-            tf.keras.layers.Dropout(rate=rand_search[0], name="dropout2"),
+            tf.keras.layers.Dropout(rate=configured_rate, name="dropout2"),
             tf.keras.layers.Dense(units=top_fc_units[1], activation="relu", name="fc2"),
-            # Last layer matches number of classes
             tf.keras.layers.Dense(
-                units=top_fc_units[-1],
+                units=top_fc_units[2],  # Last layer matches number of classes
                 activation="softmax",
-                kernel_regularizer=tf.keras.regularizers.l2(rand_search[1]),
+                kernel_regularizer=tf.keras.regularizers.l2(configured_lambda),
                 name="predictions",
             ),
         ],
