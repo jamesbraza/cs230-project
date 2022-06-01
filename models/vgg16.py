@@ -17,6 +17,7 @@ VGG_TOP_FC_UNITS: TopFCUnits = (4096, 4096, 1000)  # From the paper to match Ima
 def make_vgg16_tl_model(
     top_fc_units: TopFCUnits = VGG_TOP_FC_UNITS,
     base_model: Optional[tf.keras.Model] = None,
+    rand_search: Tuple[float, float] = (0.2, 0.01),
 ) -> tf.keras.Model:
     """
     Make a VGG16 model given a number of classes and FC units.
@@ -27,6 +28,7 @@ def make_vgg16_tl_model(
             Last value in the tuple should match your number of classes.
         base_model: Optional base model to use for transfer learning.
             If left as default of None, use Keras VGG16 trained on ImageNet.
+        rand_search: Tuple of 2nd Dropout layer's drop rate and L2 regularizer's lambda.
 
     Returns:
         VGGNet model created.
@@ -34,10 +36,6 @@ def make_vgg16_tl_model(
     if base_model is None:
         base_model = tf.keras.applications.VGG16(weights="imagenet", include_top=False)
     base_model.trainable = False  # Freeze the model
-    dense_layers = [
-        tf.keras.layers.Dense(units=units, activation="relu", name=f"fc{i+1}")
-        for i, units in enumerate(top_fc_units[:-1])
-    ]
     return tf.keras.Sequential(
         [
             tf.keras.Input(shape=VGG_IMAGE_SHAPE),  # Specify input size
@@ -47,10 +45,16 @@ def make_vgg16_tl_model(
             ),
             base_model,
             tf.keras.layers.Flatten(),
-            *dense_layers,
+            tf.keras.layers.Dropout(rate=0.2, name="dropout1"),
+            tf.keras.layers.Dense(units=top_fc_units[0], activation="relu", name="fc1"),
+            tf.keras.layers.Dropout(rate=rand_search[0], name="dropout2"),
+            tf.keras.layers.Dense(units=top_fc_units[1], activation="relu", name="fc2"),
             # Last layer matches number of classes
             tf.keras.layers.Dense(
-                units=top_fc_units[-1], activation="softmax", name="predictions"
+                units=top_fc_units[-1],
+                activation="softmax",
+                kernel_regularizer=tf.keras.regularizers.l2(rand_search[1]),
+                name="predictions",
             ),
         ],
         name="tl_vgg16",

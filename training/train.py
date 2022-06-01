@@ -40,9 +40,9 @@ DATA_AUGMENTATION: Literal[0, 1, 2] = 0
 # or leave as None to begin anew
 LAST_CHECKPOINT: Optional[str] = None
 # Set to a nickname for the save file to help facilitate reuse
-SAVE_NICKNAME: str = DEFAULT_SAVE_NICKNAME
+SAVE_NICKNAME: str = "VGG-TL-HYP-SEARCH"
 # Which model to train
-MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "resnet_tl"
+MODEL: Literal["vgg16_tl", "resnet_diy", "resnet_tl"] = "vgg16_tl"
 
 if MODEL.startswith("vgg16"):
     image_size: Tuple[int, int] = VGG_IMAGE_SIZE
@@ -100,7 +100,9 @@ else:
     raise NotImplementedError(f"Unrecognized model: {MODEL}.")
 
 # 2. Create and compile the model
-model = model_factory(top_fc_units=top_fc_units)
+model = model_factory(
+    top_fc_units=top_fc_units, rand_search=(0.67784662, 2.84789317e-4)
+)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # 3. Perform the actual training
