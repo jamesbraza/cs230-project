@@ -23,7 +23,7 @@ from models.vgg16_drop import make_tl_model
 from training.utils import preprocess_dataset
 
 # Num epochs if not early stopped
-MAX_NUM_EPOCHS = 24
+MAX_NUM_EPOCHS = 48
 # Number of validation set batches to check after each epoch, set None to check
 # all validation batches
 VALIDATION_STEPS: Optional[int] = None
@@ -36,19 +36,16 @@ def perform_random_search():
     val_loss = []
     val_accu = []
 
-    lower_reg = 1e-5
-    upper_reg = 1
-    lower_drop = 0.1
-    upper_drop = 0.8
+    lower_reg = 1e-4
+    upper_reg = 8e-4
+    lower_drop = 0.6
+    upper_drop = 0.75
     size = 16
 
     np.random.seed(seed=3)
     rv_loguniform = loguniform.rvs(lower_reg, upper_reg, size=size)
     np.random.seed(seed=99)
     rv_uniform = np.random.uniform(lower_drop, upper_drop, size=size)
-
-    print(rv_loguniform)
-    print(rv_uniform)
 
     # 1. Prepare the training data
     train_ds, val_ds, _, labels = get_dataset("small", image_size=VGG_IMAGE_SIZE)
@@ -90,8 +87,6 @@ def perform_random_search():
         train_accu.append(history.history["accuracy"][-1])
         val_loss.append(history.history["val_loss"][-1])
         val_accu.append(history.history["val_accuracy"][-1])
-        print(train_accu)
-        print(val_loss)
     return (rv_uniform, rv_loguniform, train_loss, train_accu, val_loss, val_accu)
 
 
